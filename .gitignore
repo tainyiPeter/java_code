@@ -3,3 +3,5 @@ my-webapp/.idea/
 helloapp/WEB-INF/lib/
 helloapp/.idea/
 helloapp/target/
+spring-mvc-service/.idea/
+spring-mvc-service/target/
