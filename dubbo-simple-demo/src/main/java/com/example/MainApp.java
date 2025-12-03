@@ -1,6 +1,6 @@
 package com.example;
 
-import com.alibaba.dubbo.container.Main;
+//import com.alibaba.dubbo.container.Main;
 
 /**
  * 最简单的Dubbo容器启动示例
@@ -23,6 +23,7 @@ public class MainApp {
         String[] newArgs = new String[]{"spring"};
 
         // 启动Dubbo容器
-        Main.main(newArgs);
+        //Main.main(newArgs);
+        com.alibaba.dubbo.container.Main.main(args);
     }
 }
