@@ -17,14 +17,23 @@
     </properties>
 
     <dependencies>
-        <!-- 使用 Dubbo 的完整包，包含 Spring 配置 -->
+        <!-- 添加这些依赖来支持 XML 命名空间 -->
+
+
+        <!-- Dubbo 核心 -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
             <version>${dubbo.version}</version>
-            <!-- 不要排除 Spring 依赖 -->
+            <exclusions>
+                <!-- 排除旧版本的Spring -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        
         <!-- Spring 依赖 -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -32,9 +41,6 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- 其他依赖保持不变 -->
-
-        <!-- 添加这些依赖来支持 XML 命名空间 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -52,18 +58,9 @@
             <artifactId>spring-aop</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
-        <!-- Dubbo 核心 -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>dubbo</artifactId>
-            <version>${dubbo.version}</version>
-        </dependency>
-        
-        <!-- Spring 依赖 -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>spring-expression</artifactId>
             <version>${spring.version}</version>
         </dependency>
         
@@ -107,7 +104,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.example.SimpleDubboServer</mainClass>
+                                    <mainClass>com.example.MainApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

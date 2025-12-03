@@ -8,7 +8,8 @@
     <bean id="helloService" class="com.example.service.impl.HelloServiceImpl" />
 
     <!-- 使用纯Spring Bean配置Dubbo服务 -->
-    <bean id="serviceConfig" class="com.alibaba.dubbo.config.ServiceConfig">
+    <bean id="serviceConfig" class="com.alibaba.dubbo.config.ServiceConfig"
+          init-method="export">  <!-- 关键：添加init-method -->
         <property name="interface" value="com.example.service.HelloService" />
         <property name="ref" ref="helloService" />
         <property name="protocols">
@@ -30,5 +31,6 @@
                 <property name="address" value="N/A" />
             </bean>
         </property>
+        <property name="version" value="1.0.0" />
     </bean>
 </beans>
