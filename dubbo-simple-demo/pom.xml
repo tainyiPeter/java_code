@@ -17,6 +17,42 @@
     </properties>
 
     <dependencies>
+        <!-- 使用 Dubbo 的完整包，包含 Spring 配置 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>${dubbo.version}</version>
+            <!-- 不要排除 Spring 依赖 -->
+        </dependency>
+
+        <!-- Spring 依赖 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <!-- 其他依赖保持不变 -->
+
+        <!-- 添加这些依赖来支持 XML 命名空间 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
         <!-- Dubbo 核心 -->
         <dependency>
             <groupId>com.alibaba</groupId>

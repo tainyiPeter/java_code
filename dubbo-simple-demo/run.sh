@@ -20,6 +20,7 @@ echo "✅ 打包成功: $JAR_FILE"
 
 # 启动服务
 echo -e "\n2. 启动Dubbo服务..."
+echo "hhh ,这是测试的"
 echo "监听端口: 20880"
 echo "服务接口: com.example.service.HelloService"
 echo ""

@@ -1,6 +1,6 @@
 package com.example;
 
-import com.alibaba.dubbo.container.Main;
+// import com.alibaba.dubbo.container.Main;
 
 /**
  * 最简单的Dubbo容器启动示例
@@ -21,6 +21,8 @@ public class MainApp {
 
         // 启动Dubbo容器
         // 参数为空时，默认加载classpath*:META-INF/spring/*.xml
-        Main.main(args);
+        //Main.main(args);
+
+        com.alibaba.dubbo.container.Main.main(args);
     }
 }

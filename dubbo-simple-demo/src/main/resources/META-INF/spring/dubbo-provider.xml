@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://code.alibabatech.com/schema/dubbo
-       http://code.alibabatech.com/schema/dubbo/dubbo.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- 组件扫描，自动注册@Service注解的Bean -->
-    <context:component-scan base-package="com.example.service.impl" />
+    <!-- 手动声明Bean -->
+    <bean id="helloService" class="com.example.service.impl.HelloServiceImpl" />
 
-    <!-- Dubbo应用配置 -->
-    <dubbo:application name="dubbo-simple-demo" />
-
-    <!-- 不使用注册中心（直连模式） -->
-    <dubbo:registry address="N/A" />
-
-    <!-- 协议配置：关键！监听20880端口 -->
-    <dubbo:protocol name="dubbo" port="20880" host="0.0.0.0" />
-
-    <!-- 暴露服务：使用Spring Bean helloService -->
-    <dubbo:service interface="com.example.service.HelloService"
-                   ref="helloService"
-                   version="1.0.0" />
-
+    <!-- 使用纯Spring Bean配置Dubbo服务 -->
+    <bean id="serviceConfig" class="com.alibaba.dubbo.config.ServiceConfig">
+        <property name="interface" value="com.example.service.HelloService" />
+        <property name="ref" ref="helloService" />
+        <property name="protocols">
+            <list>
+                <bean class="com.alibaba.dubbo.config.ProtocolConfig">
+                    <property name="name" value="dubbo" />
+                    <property name="port" value="20880" />
+                    <property name="host" value="0.0.0.0" />
+                </bean>
+            </list>
+        </property>
+        <property name="application">
+            <bean class="com.alibaba.dubbo.config.ApplicationConfig">
+                <property name="name" value="dubbo-simple-demo" />
+            </bean>
+        </property>
+        <property name="registry">
+            <bean class="com.alibaba.dubbo.config.RegistryConfig">
+                <property name="address" value="N/A" />
+            </bean>
+        </property>
+    </bean>
 </beans>
