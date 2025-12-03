@@ -5,3 +5,5 @@ helloapp/.idea/
 helloapp/target/
 spring-mvc-service/.idea/
 spring-mvc-service/target/
+dubbo-simple-demo/target/
+dubbo-simple-demo/.idea/
