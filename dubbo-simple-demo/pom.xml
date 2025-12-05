@@ -17,6 +17,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>  <!-- Dubbo 2.8.4 兼容的版本 -->
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>5.1.0</version>
+        </dependency>
         <!-- 添加这些依赖来支持 XML 命名空间 -->
 
 

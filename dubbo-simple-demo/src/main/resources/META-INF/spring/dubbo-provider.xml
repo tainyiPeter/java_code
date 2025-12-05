@@ -17,10 +17,17 @@
     <dubbo:application name="dubbo-simple-demo" />
 
     <!-- 不使用注册中心（直连模式） -->
-    <dubbo:registry address="N/A" />
+<!--    <dubbo:registry address="N/A" />-->
+
+    <!-- 注册中心：ZooKeeper -->
+<!--    <dubbo:registry id="zkRegistry"-->
+<!--                    protocol="zookeeper"-->
+<!--                    address="127.0.0.1:2181"/>-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" client="curator"/>
+
 
     <!-- 协议配置：关键！监听20880端口 -->
-    <dubbo:protocol name="dubbo" port="20881" host="0.0.0.0" />
+    <dubbo:protocol name="dubbo" port="20883" host="0.0.0.0" />
 
     <!-- 暴露服务：使用Spring Bean helloService -->
     <dubbo:service interface="com.example.service.HelloService"
