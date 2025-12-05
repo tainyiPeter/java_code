@@ -20,7 +20,7 @@
     <dubbo:registry address="N/A" />
 
     <!-- 协议配置：关键！监听20880端口 -->
-    <dubbo:protocol name="dubbo" port="20880" host="0.0.0.0" />
+    <dubbo:protocol name="dubbo" port="20881" host="0.0.0.0" />
 
     <!-- 暴露服务：使用Spring Bean helloService -->
     <dubbo:service interface="com.example.service.HelloService"

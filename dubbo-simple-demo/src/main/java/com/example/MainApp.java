@@ -16,8 +16,8 @@ public class MainApp {
         System.setProperty("spring.xml.validation.mode", "IGNORE");
 
         // 设置系统属性指定配置文件
-        System.setProperty("dubbo.spring.config",
-                "classpath:META-INF/spring/dubbo-provider.xml");
+        //System.setProperty("dubbo.spring.config",
+        //        "classpath:META-INF/spring/dubbo-provider.xml");
 
         // 设置要启动的容器
         String[] newArgs = new String[]{"spring"};
