@@ -46,11 +46,4 @@
     <mvc:resources mapping="/static/**" location="/static/"/>
     <mvc:resources mapping="/favicon.ico" location="/static/favicon.ico"/>
 
-    <!-- 配置拦截器 -->
-    <mvc:interceptors>
-        <mvc:interceptor>
-            <mvc:mapping path="/**"/>
-            <bean class="com.example.demo.interceptor.LogInterceptor"/>
-        </mvc:interceptor>
-    </mvc:interceptors>
 </beans>
