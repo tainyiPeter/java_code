@@ -10,6 +10,12 @@ import org.springframework.ui.ModelMap;
 @Controller
 public class StudentController {
 
+  // 添加：处理根路径 "/"
+  @RequestMapping(value = "/", method = RequestMethod.GET)
+  public String home() {
+    return "index";  // 返回 welcome.jsp
+  }
+
   @RequestMapping(value = "/student", method = RequestMethod.GET)
   public ModelAndView student() {
     return new ModelAndView("student", "command", new Student());
