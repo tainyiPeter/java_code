@@ -13,3 +13,5 @@ spring-freemarker-demo/target/
 transaction-demo/target/
 transaction-demo/.idea/
 *.log
+spring-classic-demo/.idea/
+spring-classic-demo/target/
