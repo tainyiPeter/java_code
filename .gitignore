@@ -12,3 +12,4 @@ spring-freemarker-demo/.idea/
 spring-freemarker-demo/target/
 transaction-demo/target/
 transaction-demo/.idea/
+*.log
