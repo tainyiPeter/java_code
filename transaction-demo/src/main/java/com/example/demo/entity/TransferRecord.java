@@ -9,7 +9,6 @@ public class TransferRecord {
     private String toAccount;
     private BigDecimal amount;
     private Integer status; // 1:成功, 0:失败
-    private String remark;
     private Date createTime;
 
     public TransferRecord() {
@@ -24,72 +23,26 @@ public class TransferRecord {
     }
 
     // Getter和Setter
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getFromAccount() { return fromAccount; }
+    public void setFromAccount(String fromAccount) { this.fromAccount = fromAccount; }
 
-    public String getFromAccount() {
-        return fromAccount;
-    }
+    public String getToAccount() { return toAccount; }
+    public void setToAccount(String toAccount) { this.toAccount = toAccount; }
 
-    public void setFromAccount(String fromAccount) {
-        this.fromAccount = fromAccount;
-    }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public String getToAccount() {
-        return toAccount;
-    }
+    public Integer getStatus() { return status; }
+    public void setStatus(Integer status) { this.status = status; }
 
-    public void setToAccount(String toAccount) {
-        this.toAccount = toAccount;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+    public Date getCreateTime() { return createTime; }
+    public void setCreateTime(Date createTime) { this.createTime = createTime; }
 
     @Override
     public String toString() {
-        return "TransferRecord{" +
-                "id=" + id +
-                ", fromAccount='" + fromAccount + '\'' +
-                ", toAccount='" + toAccount + '\'' +
-                ", amount=" + amount +
-                ", status=" + status +
-                ", remark='" + remark + '\'' +
-                ", createTime=" + createTime +
-                '}';
+        return fromAccount + " → " + toAccount + ": ¥" + amount + " (" + createTime + ")";
     }
 }

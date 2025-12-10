@@ -18,12 +18,12 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class AppConfig {
 
-    // 数据源配置 - 使用Spring内置的DriverManagerDataSource
+    // 数据源 - 使用Spring内置的DriverManagerDataSource
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_UPPER=false");
+        dataSource.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
@@ -39,11 +39,5 @@ public class AppConfig {
     @Bean
     public PlatformTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
-    }
-
-    // 数据库初始化器
-    @Bean(initMethod = "init")
-    public DatabaseInitializer databaseInitializer() {
-        return new DatabaseInitializer();
     }
 }
