@@ -22,7 +22,12 @@ public class AccountDao {
     // 根据账号查询账户
     public Account findByAccountNumber(String accountNumber) {
         String sql = "SELECT * FROM account WHERE account_number = ?";
-        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Account.class), accountNumber);
+        try {
+            return jdbcTemplate.queryForObject(sql,
+                    new BeanPropertyRowMapper<>(Account.class), accountNumber);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // 更新账户余额
@@ -56,7 +61,7 @@ public class AccountDao {
                 record.setAmount(rs.getBigDecimal("amount"));
                 record.setStatus(rs.getInt("status"));
                 record.setRemark(rs.getString("remark"));
-                record.setCreateTime(rs.getTimestamp("create_time").toLocalDateTime());
+                record.setCreateTime(rs.getTimestamp("create_time"));
                 return record;
             }
         }, accountNumber, accountNumber);
@@ -65,6 +70,22 @@ public class AccountDao {
     // 获取账户余额
     public BigDecimal getBalance(String accountNumber) {
         String sql = "SELECT balance FROM account WHERE account_number = ?";
-        return jdbcTemplate.queryForObject(sql, BigDecimal.class, accountNumber);
+        try {
+            return jdbcTemplate.queryForObject(sql, BigDecimal.class, accountNumber);
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
+        }
+    }
+
+    // 查询所有账户
+    public List<Account> findAllAccounts() {
+        String sql = "SELECT * FROM account ORDER BY id";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Account.class));
+    }
+
+    // 删除账户（测试用）
+    public int deleteAccount(String accountNumber) {
+        String sql = "DELETE FROM account WHERE account_number = ?";
+        return jdbcTemplate.update(sql, accountNumber);
     }
 }

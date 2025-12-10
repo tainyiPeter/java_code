@@ -23,11 +23,11 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- 数据源配置 -->
-    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
-        <property name="jdbcUrl" value="jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"/>
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.h2.Driver"/>
+        <property name="url" value="jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL"/>
         <property name="username" value="sa"/>
         <property name="password" value=""/>
-        <property name="driverClassName" value="org.h2.Driver"/>
     </bean>
 
     <!-- JdbcTemplate -->
@@ -41,22 +41,18 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <!-- AOP事务配置 -->
+    <!-- AOP事务配置（声明式） -->
     <aop:config>
-        <!-- 定义切入点 -->
         <aop:pointcut id="serviceMethods"
                       expression="execution(* com.example.demo.service..*.*(..))"/>
-        <aop:pointcut id="daoMethods"
-                      expression="execution(* com.example.demo.dao..*.*(..))"/>
 
-        <!-- 应用事务通知 -->
         <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods" order="2"/>
-        <aop:advisor advice-ref="txAdvice" pointcut-ref="daoMethods" order="2"/>
     </aop:config>
 
     <!-- 事务通知配置 -->
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
+            <!-- 写操作 -->
             <tx:method name="create*" propagation="REQUIRED" rollback-for="Exception"/>
             <tx:method name="add*" propagation="REQUIRED" rollback-for="Exception"/>
             <tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>
@@ -66,12 +62,14 @@
             <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception"/>
             <tx:method name="transfer*" propagation="REQUIRED" rollback-for="Exception"/>
 
-            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
-            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
-            <tx:method name="query*" propagation="REQUIRED" read-only="true"/>
-            <tx:method name="select*" propagation="REQUIRED" read-only="true"/>
+            <!-- 读操作 -->
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
 
-            <tx:method name="*" read-only="true"/>
+            <!-- 默认 -->
+            <tx:method name="*" propagation="SUPPORTS" read-only="true"/>
         </tx:attributes>
     </tx:advice>
 </beans>
