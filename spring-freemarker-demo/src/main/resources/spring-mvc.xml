@@ -42,8 +42,8 @@
         <property name="requestContextAttribute" value="request"/>
     </bean>
 
-    <!-- 静态资源处理 -->
-    <mvc:resources mapping="/static/**" location="/static/"/>
-    <mvc:resources mapping="/favicon.ico" location="/static/favicon.ico"/>
+<!--    &lt;!&ndash; 静态资源处理 &ndash;&gt;-->
+<!--    <mvc:resources mapping="/static/**" location="/static/"/>-->
+<!--    <mvc:resources mapping="/favicon.ico" location="/static/favicon.ico"/>-->
 
 </beans>

@@ -10,3 +10,5 @@ dubbo-simple-demo/.idea/
 dubbo-simple-demo/km.txt
 spring-freemarker-demo/.idea/
 spring-freemarker-demo/target/
+transaction-demo/target/
+transaction-demo/.idea/
