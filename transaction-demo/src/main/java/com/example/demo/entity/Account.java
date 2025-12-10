@@ -1,12 +1,15 @@
 package com.example.demo.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class Account {
     private Long id;
     private String accountNumber;
     private String accountName;
     private BigDecimal balance;
+    private Date createTime;
+    private Date updateTime;
 
     public Account() {
     }
