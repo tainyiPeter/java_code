@@ -5,17 +5,40 @@
          http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <!-- 配置Spring上下文监听器 -->
+    <!-- ========== 1. 上下文参数 ========== -->
+    <!-- Spring根上下文配置 -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext.xml</param-value>
+        <param-value>
+            classpath:applicationContext.xml
+            classpath:spring-mvc.xml
+        </param-value>
     </context-param>
 
+    <!-- 日志配置文件位置 -->
+    <context-param>
+        <param-name>logbackConfigLocation</param-name>
+        <param-value>classpath:logback.xml</param-value>
+    </context-param>
+
+    <!-- ========== 2. 监听器 ========== -->
+    <!-- Spring上下文监听器 -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
-    <!-- 配置字符编码过滤器 -->
+<!--    &lt;!&ndash; Logback日志监听器 &ndash;&gt;-->
+<!--    <listener>-->
+<!--        <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>-->
+<!--    </listener>-->
+
+    <!-- Spring RequestContextListener（用于非Controller中获取Request） -->
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+
+    <!-- ========== 3. 过滤器 ========== -->
+    <!-- 字符编码过滤器 -->
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -34,46 +57,18 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- 配置DispatcherServlet -->
-    <servlet>
-        <servlet-name>dispatcherServlet</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+    <!-- HiddenHttpMethodFilter（支持RESTful风格，如PUT、DELETE） -->
+    <filter>
+        <filter-name>hiddenHttpMethodFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+    </filter>
 
-    <servlet-mapping>
-        <servlet-name>dispatcherServlet</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
+    <filter-mapping>
+        <filter-name>hiddenHttpMethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-    <!-- 配置Druid监控Servlet -->
-    <servlet>
-        <servlet-name>DruidStatView</servlet-name>
-        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
-        <init-param>
-            <param-name>loginUsername</param-name>
-            <param-value>admin</param-value>
-        </init-param>
-        <init-param>
-            <param-name>loginPassword</param-name>
-            <param-value>admin123</param-value>
-        </init-param>
-        <init-param>
-            <param-name>resetEnable</param-name>
-            <param-value>false</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>DruidStatView</servlet-name>
-        <url-pattern>/druid/*</url-pattern>
-    </servlet-mapping>
-
-    <!-- 配置Druid监控过滤器 -->
+    <!-- Druid监控过滤器 -->
     <filter>
         <filter-name>druidWebStatFilter</filter-name>
         <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
@@ -92,13 +87,205 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- 配置session超时时间 -->
+    <!-- ========== 4. Servlet配置 ========== -->
+    <!-- Spring MVC DispatcherServlet -->
+    <servlet>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <!-- 这里配置MVC特有的配置，与根配置分离 -->
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-mvc.xml</param-value>
+        </init-param>
+        <init-param>
+            <!-- 开启详细错误信息 -->
+            <param-name>throwExceptionIfNoHandlerFound</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <!-- 开启异步支持 -->
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!-- DefaultServlet (用于处理静态资源) -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.css</url-pattern>
+        <url-pattern>*.js</url-pattern>
+        <url-pattern>*.png</url-pattern>
+        <url-pattern>*.jpg</url-pattern>
+        <url-pattern>*.gif</url-pattern>
+        <url-pattern>*.ico</url-pattern>
+        <url-pattern>*.woff</url-pattern>
+        <url-pattern>*.woff2</url-pattern>
+        <url-pattern>*.ttf</url-pattern>
+        <url-pattern>*.eot</url-pattern>
+        <url-pattern>*.svg</url-pattern>
+    </servlet-mapping>
+
+    <!-- Druid监控Servlet -->
+    <servlet>
+        <servlet-name>DruidStatView</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+        <init-param>
+            <param-name>loginUsername</param-name>
+            <param-value>admin</param-value>
+        </init-param>
+        <init-param>
+            <param-name>loginPassword</param-name>
+            <param-value>admin123</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resetEnable</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>allow</param-name>
+            <!-- 允许访问的IP，为空表示所有IP -->
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>deny</param-name>
+            <!-- 拒绝访问的IP -->
+            <param-value></param-value>
+        </init-param>
+        <!-- 开启Session监控 -->
+        <init-param>
+            <param-name>sessionStatEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DruidStatView</servlet-name>
+        <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- SQL防火墙Servlet -->
+    <servlet>
+        <servlet-name>DruidWebWall</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.WebStatFilter</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DruidWebWall</servlet-name>
+        <url-pattern>/druid-wall/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- ========== 5. 会话配置 ========== -->
     <session-config>
         <session-timeout>30</session-timeout>
+        <!-- 设置Cookie -->
+        <cookie-config>
+            <http-only>true</http-only>
+            <secure>false</secure>
+            <max-age>1800</max-age> <!-- 30分钟 -->
+        </cookie-config>
+        <!-- 跟踪模式：COOKIE, URL, SSL -->
+        <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
-    <!-- 配置默认首页 -->
+    <!-- ========== 6. 错误页面配置 ========== -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/views/error/404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/views/error/500.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/WEB-INF/views/error/exception.jsp</location>
+    </error-page>
+
+    <!-- ========== 7. 欢迎文件列表 ========== -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>default.jsp</welcome-file>
+        <welcome-file>default.html</welcome-file>
+        <welcome-file>default.htm</welcome-file>
     </welcome-file-list>
+
+    <!-- ========== 8. JSP配置 ========== -->
+    <jsp-config>
+        <!-- 设置JSP属性 -->
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <url-pattern>*.jspf</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+            <scripting-invalid>false</scripting-invalid>
+            <include-prelude>/WEB-INF/include/common.jspf</include-prelude>
+            <include-coda>/WEB-INF/include/footer.jspf</include-coda>
+            <trim-directive-whitespaces>true</trim-directive-whitespaces>
+            <default-content-type>text/html</default-content-type>
+        </jsp-property-group>
+
+        <!-- 配置JSTL -->
+        <taglib>
+            <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
+            <taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+        </taglib>
+        <taglib>
+            <taglib-uri>http://java.sun.com/jsp/jstl/fmt</taglib-uri>
+            <taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
+        </taglib>
+        <taglib>
+            <taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
+            <taglib-location>/WEB-INF/tld/fn.tld</taglib-location>
+        </taglib>
+        <taglib>
+            <taglib-uri>http://www.springframework.org/tags</taglib-uri>
+            <taglib-location>/WEB-INF/tld/spring.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+
+    <!-- ========== 9. 安全约束 ========== -->
+    <security-constraint>
+        <!-- 保护Druid监控页面 -->
+        <web-resource-collection>
+            <web-resource-name>Druid监控</web-resource-name>
+            <url-pattern>/druid/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>Druid监控</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+
+    <!-- ========== 10. MIME类型映射 ========== -->
+    <mime-mapping>
+        <extension>json</extension>
+        <mime-type>application/json</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xml</extension>
+        <mime-type>application/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pdf</extension>
+        <mime-type>application/pdf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>zip</extension>
+        <mime-type>application/zip</mime-type>
+    </mime-mapping>
+
 </web-app>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- ========== 1. 组件扫描 ========== -->
+    <!-- 只扫描Controller，Service和Repository在applicationContext.xml中扫描 -->
+    <context:component-scan base-package="com.demo.controller" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!-- ========== 2. 注解驱动 ========== -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- 配置JSON转换器 -->
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+            <!-- 配置String转换器 -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- ========== 3. 静态资源处理 ========== -->
+    <mvc:default-servlet-handler/>
+
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <mvc:resources mapping="/css/**" location="/css/"/>
+    <mvc:resources mapping="/js/**" location="/js/"/>
+    <mvc:resources mapping="/images/**" location="/images/"/>
+
+    <!-- ========== 4. 视图解析器 ========== -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+        <property name="exposeContextBeansAsAttributes" value="true"/>
+    </bean>
+
+    <!-- ========== 5. 文件上传 ========== -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"/> <!-- 10MB -->
+        <property name="maxInMemorySize" value="4096"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="resolveLazily" value="true"/>
+    </bean>
+
+    <!-- ========== 6. 拦截器 ========== -->
+<!--    <mvc:interceptors>-->
+<!--        &lt;!&ndash; 日志拦截器 &ndash;&gt;-->
+<!--&lt;!&ndash;        <bean class="com.demo.interceptor.LoggingInterceptor"/>&ndash;&gt;-->
+
+<!--        &lt;!&ndash; 权限拦截器 &ndash;&gt;-->
+<!--        <bean class="com.demo.interceptor.AuthInterceptor"/>-->
+
+<!--        &lt;!&ndash; 跨域拦截器 &ndash;&gt;-->
+<!--        <mvc:interceptor>-->
+<!--            <mvc:mapping path="/api/**"/>-->
+<!--            <bean class="com.demo.interceptor.CorsInterceptor"/>-->
+<!--        </mvc:interceptor>-->
+<!--    </mvc:interceptors>-->
+
+    <!-- ========== 7. 异常处理 ========== -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.lang.Exception">error/exception</prop>
+                <prop key="org.springframework.web.servlet.NoHandlerFoundException">error/404</prop>
+                <prop key="org.springframework.dao.DataAccessException">error/database</prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="error/error"/>
+        <property name="exceptionAttribute" value="exception"/>
+    </bean>
+
+    <!-- ========== 8. 本地化/国际化 ========== -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="defaultLocale" value="zh_CN"/>
+        <property name="cookieName" value="lang"/>
+        <property name="cookieMaxAge" value="604800"/> <!-- 7天 -->
+    </bean>
+
+    <bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+        <property name="paramName" value="lang"/>
+    </bean>
+
+    <!-- ========== 9. 主题 ========== -->
+    <bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
+        <property name="basenamePrefix" value="theme."/>
+    </bean>
+
+    <bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
+        <property name="defaultThemeName" value="default"/>
+        <property name="cookieName" value="theme"/>
+    </bean>
+
+    <!-- ========== 10. 定时任务 ========== -->
+<!--    <bean id="scheduledTasks" class="com.demo.schedule.ScheduledTasks"/>-->
+
+<!--    <task:annotation-driven executor="taskExecutor" scheduler="taskScheduler"/>-->
+
+<!--    <task:executor id="taskExecutor" pool-size="5"/>-->
+<!--    <task:scheduler id="taskScheduler" pool-size="10"/>-->
+
+</beans>
