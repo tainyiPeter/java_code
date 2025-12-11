@@ -126,29 +126,4 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    /**
-     * 首页控制器
-     */
-    @Controller
-    @RequestMapping("/")
-    public static class HomeController {
-
-        @GetMapping("/")
-        public String home(Model model, HttpServletRequest request) {
-            model.addAttribute("contextPath", request.getContextPath());
-            model.addAttribute("serverInfo", request.getServletContext().getServerInfo());
-            model.addAttribute("javaVersion", System.getProperty("java.version"));
-            return "home/index";
-        }
-
-        @GetMapping("/about")
-        public String about() {
-            return "home/about";
-        }
-
-        @GetMapping("/contact")
-        public String contact() {
-            return "home/contact";
-        }
-    }
 }

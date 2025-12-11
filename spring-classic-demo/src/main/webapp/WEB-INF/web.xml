@@ -251,7 +251,7 @@
     <security-constraint>
         <!-- 保护Druid监控页面 -->
         <web-resource-collection>
-            <web-resource-name>Druid监控</web-resource-name>
+            <web-resource-name>Druid Monitor</web-resource-name>
             <url-pattern>/druid/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
@@ -263,7 +263,7 @@
 
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>Druid监控</realm-name>
+        <realm-name>Druid Monitor</realm-name>
     </login-config>
 
     <security-role>
