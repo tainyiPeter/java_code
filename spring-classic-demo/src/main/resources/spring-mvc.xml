@@ -55,7 +55,7 @@
 
     <!-- ========== 4. 视图解析器 ========== -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views"/>
+        <property name="prefix" value="/WEB-INF/view/"/>
         <property name="suffix" value=".jsp"/>
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         <property name="contentType" value="text/html;charset=UTF-8"/>
@@ -126,5 +126,18 @@
 
 <!--    <task:executor id="taskExecutor" pool-size="5"/>-->
 <!--    <task:scheduler id="taskScheduler" pool-size="10"/>-->
+
+    <!-- 添加配置验证 -->
+<!--    <bean id="configLogger" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">-->
+<!--        <property name="targetClass" value="java.lang.System"/>-->
+<!--        <property name="targetMethod" value="println"/>-->
+<!--        <property name="arguments">-->
+<!--            <list>-->
+<!--                <value>=== Spring MVC配置已加载 ===</value>-->
+<!--                <value>视图解析器前缀: /WEB-INF/view/</value>-->
+<!--                <value>视图解析器后缀: .jsp</value>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
 
 </beans>

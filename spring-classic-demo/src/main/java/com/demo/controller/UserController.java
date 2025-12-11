@@ -38,8 +38,33 @@ public class UserController {
      */
     @GetMapping("/add")
     public String showAddForm(Model model) {
-        model.addAttribute("user", new User());
+
+        logger.info("=== 开始显示添加用户表单 ===");
+
+        // 创建新的User对象
+        User user = new User();
+
+        // 方法1：直接toString()
+        logger.info("新创建的User对象：{}", user.toString());
+
+        // 或者更简洁的写法（自动调用toString()）
+        //logger.info("新创建的User对象：{}", user);
+
+        model.addAttribute("user", user);
+
+        logger.info("=== 结束显示添加用户表单 ===");
         return "user/add";
+    }
+
+    /**
+     * 显示添加用户表单
+     */
+    @GetMapping("/abc")
+    public String showAbc(Model model) {
+
+        logger.info("测试页面123");
+
+        return "user/abc";
     }
 
     /**
