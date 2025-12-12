@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,12 @@ public class DebugController {
     @GetMapping("/debug/jsp")
     public String debugJsp() {
         logger.info("=== 尝试返回JSP视图 ===");
+
+//        // 添加数据到Model，JSP可以访问
+//        model.addAttribute("message", "Hello from Spring!");
+//        model.addAttribute("timestamp", new Date());
+//        model.addAttribute("items", Arrays.asList("A", "B", "C"));
+
         return "user/abc";
     }
 
@@ -51,5 +59,19 @@ public class DebugController {
       //  sb.append("用户数量: ").append(userService.getUserCount()).append("\n");
 
         return sb.toString();
+    }
+
+    @GetMapping("/ping")
+    public String ping() {
+        return "PONG - " + new java.util.Date();
+    }
+
+    @GetMapping("/env")
+    public Map<String, String> environment() {
+        Map<String, String> env = new HashMap<>();
+        env.put("java.version", System.getProperty("java.version"));
+        env.put("project.path", System.getProperty("user.dir"));
+        env.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        return env;
     }
 }
