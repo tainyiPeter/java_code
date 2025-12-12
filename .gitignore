@@ -15,3 +15,5 @@ transaction-demo/.idea/
 *.log
 spring-classic-demo/.idea/
 spring-classic-demo/target/
+fm-druid-aop-spring-demo/.idea/
+fm-druid-aop-spring-demo/target/
