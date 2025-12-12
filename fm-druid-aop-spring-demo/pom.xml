@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>com.demo</groupId>
-    <artifactId>spring-classic-demo</artifactId>
+    <artifactId>fm-druid-aop-spring-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     
@@ -105,7 +105,7 @@
     </dependencies>
     
     <build>
-        <finalName>spring-classic-demo</finalName>
+        <finalName>fm-druid-aop-spring-demo</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
