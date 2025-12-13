@@ -23,4 +23,37 @@
 			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<!-- 设置输出的 JAR 文件名 -->
+					<finalName>spring-ioc-appcontext</finalName>
+					<appendAssemblyId>false</appendAssemblyId>  <!-- 不添加后缀 -->
+					<archive>
+						<manifest>
+							<!-- 替换为你的实际主类 -->
+							<mainClass>com.itranswarp.learnjava.Main</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
