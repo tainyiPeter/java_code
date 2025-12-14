@@ -29,10 +29,42 @@
         </mvc:message-converters>
     </mvc:annotation-driven>
 
+    <!-- 配置FreeMarker -->
+    <bean id="freemarkerConfig"
+          class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!-- 模板加载路径 -->
+        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
+
+        <!-- FreeMarker设置 -->
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="defaultEncoding">UTF-8</prop>
+                <prop key="locale">zh_CN</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="date_format">yyyy-MM-dd</prop>
+                <prop key="number_format">#.##</prop>
+                <prop key="template_update_delay">0</prop>
+                <prop key="url_escaping_charset">UTF-8</prop>
+                <!-- 开发模式设置 -->
+                <prop key="template_exception_handler">rethrow</prop>
+                <prop key="log_template_exceptions">false</prop>
+            </props>
+        </property>
+
+        <!-- 共享变量 -->
+        <property name="freemarkerVariables">
+            <map>
+                <entry key="basePath" value="/spring-freemarker-demo"/>
+                <entry key="version" value="1.0.0"/>
+                <entry key="staticPath" value="/spring-freemarker-demo/static"/>
+            </map>
+        </property>
+    </bean>
+
     <!-- 配置视图解析器 -->
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
-        <property name="cache" value="false"/>
+        <property name="cache" value="false"/>  <!-- 开发时设为false -->
         <property name="prefix" value=""/>
         <property name="suffix" value=".ftl"/>
         <property name="contentType" value="text/html;charset=UTF-8"/>
@@ -40,13 +72,16 @@
         <property name="exposeRequestAttributes" value="true"/>
         <property name="exposeSessionAttributes" value="true"/>
         <property name="requestContextAttribute" value="request"/>
+        <!-- 关联FreeMarker配置 -->
+<!--        <property name="configuration" ref="freemarkerConfig"/>-->
     </bean>
 
-<!--    &lt;!&ndash; 静态资源处理 &ndash;&gt;-->
-<!--    <mvc:resources mapping="/static/**" location="/static/"/>-->
-<!--    <mvc:resources mapping="/favicon.ico" location="/static/favicon.ico"/>-->
-
-    <!-- 方案1.1：使用默认Servlet处理静态资源 -->
+    <!-- 静态资源处理 -->
     <mvc:default-servlet-handler/>
 
+    <!-- 或者使用精确的资源映射 -->
+    <!--
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <mvc:resources mapping="/favicon.ico" location="/favicon.ico"/>
+    -->
 </beans>

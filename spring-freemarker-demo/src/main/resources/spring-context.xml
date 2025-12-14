@@ -17,29 +17,6 @@
     <!-- 加载属性文件 -->
     <context:property-placeholder location="classpath:application.properties"/>
 
-    <!-- 配置FreeMarker -->
-    <bean id="freemarkerConfig"
-          class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
-        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
-        <property name="freemarkerSettings">
-            <props>
-                <prop key="defaultEncoding">UTF-8</prop>
-                <prop key="locale">zh_CN</prop>
-                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
-                <prop key="date_format">yyyy-MM-dd</prop>
-                <prop key="number_format">#.##</prop>
-                <prop key="template_update_delay">0</prop>
-                <prop key="url_escaping_charset">UTF-8</prop>
-            </props>
-        </property>
-        <property name="freemarkerVariables">
-            <map>
-                <entry key="basePath" value="/spring-freemarker-demo"/>
-                <entry key="version" value="1.0.0"/>
-            </map>
-        </property>
-    </bean>
-
     <!-- 添加日志 by ds-->
     <!-- 添加Bean后处理器，输出Bean创建日志 -->
     <bean class="org.springframework.context.support.PostProcessorRegistrationDelegate"/>
