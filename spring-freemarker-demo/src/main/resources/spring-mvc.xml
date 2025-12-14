@@ -46,4 +46,7 @@
 <!--    <mvc:resources mapping="/static/**" location="/static/"/>-->
 <!--    <mvc:resources mapping="/favicon.ico" location="/static/favicon.ico"/>-->
 
+    <!-- 方案1.1：使用默认Servlet处理静态资源 -->
+    <mvc:default-servlet-handler/>
+
 </beans>

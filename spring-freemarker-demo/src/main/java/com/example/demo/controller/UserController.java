@@ -154,7 +154,7 @@ public class UserController {
     /**
      * 首页
      */
-    @GetMapping("/")
+    @GetMapping(value = {"", "/"})
     public String index(Model model) {
         model.addAttribute("appName", appName);
         model.addAttribute("appVersion", appVersion);
