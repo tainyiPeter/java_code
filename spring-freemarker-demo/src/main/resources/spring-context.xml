@@ -17,13 +17,5 @@
     <!-- 加载属性文件 -->
     <context:property-placeholder location="classpath:application.properties"/>
 
-    <!-- 添加日志 by ds-->
-    <!-- 添加Bean后处理器，输出Bean创建日志 -->
-    <bean class="org.springframework.context.support.PostProcessorRegistrationDelegate"/>
 
-    <!-- 开启更详细的日志 -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
-        <property name="searchSystemEnvironment" value="true"/>
-    </bean>
 </beans>
