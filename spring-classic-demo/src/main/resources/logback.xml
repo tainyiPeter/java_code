@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- 定义日志输出路径 -->
-    <property name="LOG_HOME" value="./logs" />
-    <property name="APP_NAME" value="spring-demo" />
+    <property name="LOG_HOME" value="./my_logs" />
+    <property name="APP_NAME" value="spring-class-demo" />
 
     <!-- 控制台输出 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

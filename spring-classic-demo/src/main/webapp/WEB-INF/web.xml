@@ -221,6 +221,7 @@
         <welcome-file>default.jsp</welcome-file>
         <welcome-file>default.html</welcome-file>
         <welcome-file>default.htm</welcome-file>
+        <welcome-file>welcome.jsp</welcome-file>
     </welcome-file-list>
 
     <!-- ========== 8. JSP配置 ========== -->

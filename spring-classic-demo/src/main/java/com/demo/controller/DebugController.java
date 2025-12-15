@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +42,45 @@ public class DebugController {
         return "user/abc";
     }
 
+    @GetMapping("/debug/abchtml")
+    public String debugAbchtml() {
+        logger.info("=== 尝试返回abchtml视图 ===");
+
+        return "user/abc.html";
+    }
+
     @GetMapping("/test-view")
     public String testView() {
         logger.info("测试视图解析器，返回test.jsp");
         return "test";  // 应该解析为 /WEB-INF/views/test.jsp
+    }
+
+    // 在Controller中添加一个验证方法
+    @GetMapping("/debug/file-check")
+    @ResponseBody
+    public String checkFileExistence(HttpServletRequest request) {
+        String realPath = request.getServletContext().getRealPath("/WEB-INF/views/user/abc.jsp");
+        File file = new File(realPath);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== 文件检查 ===<br>");
+        sb.append("逻辑路径: /WEB-INF/views/user/abc.jsp<br>");
+        sb.append("物理路径: ").append(realPath).append("<br>");
+        sb.append("文件存在: ").append(file.exists()).append("<br>");
+        sb.append("文件大小: ").append(file.length()).append(" bytes<br>");
+        sb.append("可读: ").append(file.canRead()).append("<br>");
+
+        // 列出目录内容
+        File dir = file.getParentFile();
+        if (dir.exists()) {
+            sb.append("<br>=== 目录内容 ===<br>");
+            String[] files = dir.list();
+            for (String f : files) {
+                sb.append(f).append("<br>");
+            }
+        }
+
+        return sb.toString();
     }
 
     @GetMapping("/verify")
