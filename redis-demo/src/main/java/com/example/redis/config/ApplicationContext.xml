@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 1. 加载属性文件 -->
+    <context:property-placeholder location="classpath:redis.properties"/>
+
+    <!-- 2. 开启注解扫描 -->
+    <context:component-scan base-package="com.example.redis"/>
+
+    <!-- 3. Jedis 连接池配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxTotal}"/>
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="minIdle" value="${redis.minIdle}"/>
+        <property name="maxWaitMillis" value="${redis.maxWaitMillis}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+    </bean>
+
+    <!-- 4. Jedis 单机连接配置 -->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+        <constructor-arg name="host" value="${redis.host}"/>
+        <constructor-arg name="port" value="${redis.port}" type="int"/>
+        <constructor-arg name="timeout" value="${redis.timeout}" type="int"/>
+        <constructor-arg name="password" value="${redis.password}"/>
+    </bean>
+
+    <!-- 5. Redis 工具类 -->
+    <bean id="redisUtil" class="com.example.redis.util.RedisUtil">
+        <property name="jedisPool" ref="jedisPool"/>
+        <property name="defaultExpire" value="${redis.defaultExpire}"/>
+    </bean>
+
+    <!-- 6. JSON 序列化工具 -->
+    <bean id="jacksonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+
+    <!-- 7. Service 和 Dao 配置 -->
+    <bean id="userDao" class="com.example.redis.dao.impl.UserDaoRedisImpl">
+        <property name="redisUtil" ref="redisUtil"/>
+        <property name="objectMapper" ref="jacksonObjectMapper"/>
+        <property name="userKeyPrefix" value="user:"/>
+        <property name="userExpire" value="${redis.user.expire}"/>
+    </bean>
+
+    <bean id="userService" class="com.example.redis.service.impl.UserServiceImpl">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+</beans>
