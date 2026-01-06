@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- 基本信息 -->
+    <groupId>com.example</groupId>
+    <artifactId>chapter20</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+    
+    <name>chapter20</name>
+    <description>Converted from Ant build.xml</description>
+    
+    <properties>
+        <!-- 编码和版本属性 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        
+        <!-- 依赖版本 -->
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <tomcat.version>9.0.0</tomcat.version>
+    </properties>
+    
+    <dependencies>
+        <!-- Servlet API (provided scope 表示由容器提供) -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- 如果需要其他 Tomcat lib 中的依赖，可以在这里添加 -->
+        <!-- 例如：JSP API -->
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- 原 Ant 文件中包含了 tomcat/lib 下的所有 jar -->
+        <!-- 通常只需要 Servlet API，其他根据实际需要添加 -->
+    </dependencies>
+    
+    <build>
+        <!-- 最终生成的 war 文件名称 -->
+        <finalName>chapter20</finalName>
+        
+        <!-- 自定义目录结构（如果保持原有结构） -->
+        <sourceDirectory>src</sourceDirectory>
+        <outputDirectory>WEB-INF/classes</outputDirectory>
+        
+        <plugins>
+            <!-- Maven 编译器插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <debug>true</debug>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            
+            <!-- Maven WAR 插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <warSourceDirectory>.</warSourceDirectory>
+                    <!-- 保留原有结构，直接以当前目录为 Web 根目录 -->
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            
+            <!-- Maven 清理插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>WEB-INF/classes</directory>
+                            <includes>
+                                <include>**/*.class</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
