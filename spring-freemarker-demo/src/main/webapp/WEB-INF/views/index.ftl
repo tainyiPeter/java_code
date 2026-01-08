@@ -6,6 +6,7 @@
             <div class="stat-item">
                 <span class="stat-label">总用户数</span>
                 <span class="stat-value">${userCount!0}</span>
+                <span class="stat-value">基础路径：${basePath}</span>
             </div>
         </div>
 

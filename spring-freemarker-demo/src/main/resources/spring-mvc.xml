@@ -59,7 +59,8 @@
         <!-- 共享变量 -->
         <property name="freemarkerVariables">
             <map>
-                <entry key="basePath" value="/spring-freemarker-demo"/>
+<!--                <entry key="basePath" value="/spring-freemarker-demo"/>-->
+                <entry key="basePath" value=""/>
                 <entry key="version" value="1.0.0"/>
                 <entry key="staticPath" value="/spring-freemarker-demo/static"/>
             </map>
