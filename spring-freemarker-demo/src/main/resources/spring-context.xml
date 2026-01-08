@@ -16,8 +16,8 @@
 
     <!-- 加载属性文件 -->
     <context:property-placeholder location="classpath:application.properties"/>
-    <!-- 1. 加载属性文件 -->
-    <context:property-placeholder location="classpath:db.properties"/>
+<!--    &lt;!&ndash; 1. 加载属性文件 &ndash;&gt;-->
+<!--    <context:property-placeholder location="classpath:db.properties"/>-->
 
     <!-- 2. 简化版Druid数据源配置 -->
     <bean id="chasedDataSource" class="com.alibaba.druid.pool.DruidDataSource"

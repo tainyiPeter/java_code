@@ -1,7 +1,7 @@
 <#import "layout.ftl" as layout>
 <@layout.layout title="首页">
     <div class="welcome">
-        <h2>欢迎使用 ${appName!}</h2>
+        <h2>欢迎使用v5 ${appName!}</h2>
         <div class="stats">
             <div class="stat-item">
                 <span class="stat-label">总用户数</span>
