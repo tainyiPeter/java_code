@@ -17,4 +17,5 @@ qrcode:
   default-url: https://www.sohu.com
   width: 300
   height: 300
+  check-template-location: true  # 添加这个
   image-format: PNG

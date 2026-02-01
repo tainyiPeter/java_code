@@ -198,7 +198,7 @@
 
         <div class="qr-section">
             <div class="qr-code">
-                <img th:if="${qrCodeBase64 && isValid}"
+                <img th:if="${qrCodeBase64 != null and isValid}"
                      th:src="@{'data:image/png;base64,' + ${qrCodeBase64}}"
                      alt="二维码">
                 <div th:if="!isValid" style="color: #f44336; padding: 50px;">
