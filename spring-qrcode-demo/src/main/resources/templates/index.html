@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">二维码生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 40px;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .card i {
+            margin-right: 10px;
+            color: #4facfe;
+        }
+
+        .qr-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .qr-code {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .qr-code img {
+            width: 250px;
+            height: 250px;
+            border-radius: 5px;
+        }
+
+        .url-display {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .url-display a {
+            color: #2196f3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-link {
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #2196f3;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .quick-link:hover {
+            background: #bbdefb;
+        }
+
+        .api-info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-qrcode"></i> 微信扫码跳转测试</h1>
+        <p>使用微信扫描二维码，自动跳转到目标网站</p>
+    </div>
+
+    <div class="content">
+        <div class="left-panel">
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> 使用说明</h2>
+                <ol style="padding-left: 20px; line-height: 1.8;">
+                    <li><strong>扫描测试</strong>：使用微信扫描右侧二维码</li>
+                    <li><strong>自定义链接</strong>：在下表输入框输入任意网址</li>
+                    <li><strong>快速生成</strong>：点击下方预设链接快速测试</li>
+                    <li><strong>API调用</strong>：可通过API接口获取二维码数据</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-link"></i> 生成自定义二维码</h2>
+                <form action="/generate" method="get" id="qrForm">
+                    <div class="form-group">
+                        <label for="urlInput"><i class="fas fa-globe"></i> 目标网址：</label>
+                        <input type="url"
+                               id="urlInput"
+                               name="url"
+                               class="form-control"
+                               placeholder="https://example.com"
+                               value="https://www.sohu.com"
+                               required>
+                    </div>
+
+                    <button type="submit" class="btn">
+                        <i class="fas fa-bolt"></i> 生成二维码
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" onclick="generateQuickQR()" style="margin-left: 10px;">
+                        <i class="fas fa-rocket"></i> 快速生成
+                    </button>
+                </form>
+
+                <div class="quick-links">
+                    <p style="width: 100%; margin-bottom: 10px; color: #666;">快速测试：</p>
+                    <a href="/generate?url=https://www.baidu.com" class="quick-link">
+                        <i class="fas fa-search"></i> 百度搜索
+                    </a>
+                    <a href="/generate?url=https://github.com" class="quick-link">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="/generate?url=https://weixin.qq.com" class="quick-link">
+                        <i class="fab fa-weixin"></i> 微信官网
+                    </a>
+                    <a href="/generate?url=https://news.qq.com" class="quick-link">
+                        <i class="fas fa-newspaper"></i> 腾讯新闻
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-code"></i> API接口说明</h2>
+                <div class="api-info">
+                    <p><strong>获取二维码图片：</strong><br>
+                        <code>GET /qrcode/image?content=你的内容</code></p>
+
+                    <p><strong>获取Base64数据：</strong><br>
+                        <code>GET /qrcode/base64?content=你的内容</code></p>
+
+                    <p><strong>健康检查：</strong><br>
+                        <code>GET /health</code></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="qr-container">
+                <h2><i class="fas fa-mobile-alt"></i> 扫描测试二维码</h2>
+                <p style="color: #666; margin-bottom: 20px;">使用微信扫描下方二维码，将跳转到搜狐网站</p>
+
+                <div class="qr-code">
+                    <img th:src="@{'data:image/png;base64,' + ${qrCodeBase64}}"
+                         alt="搜狐二维码"
+                         id="qrImage">
+                </div>
+
+                <div class="url-display">
+                    <strong><i class="fas fa-external-link-alt"></i> 跳转地址：</strong><br>
+                    <a th:href="${defaultUrl}" th:text="${defaultUrl}" target="_blank"></a>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="downloadQRCode()">
+                        <i class="fas fa-download"></i> 下载二维码
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshQRCode()" style="margin-left: 10px;">
+                        <i class="fas fa-sync-alt"></i> 刷新生成
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px; color: #666; font-size: 0.9rem;">
+                    <p><i class="fas fa-clock"></i> 生成时间：<span id="currentTime"></span></p>
+                    <p><i class="fas fa-desktop"></i> 访问地址：<span th:text="${#httpServletRequest.requestURL}"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 QR Code Generator | Powered by Spring Boot & ZXing</p>
+        <p style="font-size: 0.9rem; margin-top: 5px;">
+            服务状态：<span style="color: #4CAF50;">●</span> 正常运行
+        </p>
+    </div>
+</div>
+
+<script>
+    // 显示当前时间
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('currentTime').textContent =
+            now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+    }
+
+    // 更新当前时间
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // 快速生成二维码
+    function generateQuickQR() {
+        const urlInput = document.getElementById('urlInput');
+        const quickUrls = [
+            'https://www.taobao.com',
+            'https://www.jd.com',
+            'https://www.163.com',
+            'https://www.sina.com.cn'
+        ];
+        const randomUrl = quickUrls[Math.floor(Math.random() * quickUrls.length)];
+        urlInput.value = randomUrl;
+        document.getElementById('qrForm').submit();
+    }
+
+    // 下载二维码
+    function downloadQRCode() {
+        const qrImage = document.getElementById('qrImage');
+        const link = document.createElement('a');
+        link.href = qrImage.src;
+        link.download = 'qrcode_' + new Date().getTime() + '.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // 刷新二维码
+    function refreshQRCode() {
+        const url = window.location.origin + '/qrcode/base64?content=' +
+            encodeURIComponent(document.getElementById('urlInput').value) +
+            '&t=' + new Date().getTime();
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('qrImage').src =
+                        'data:image/png;base64,' + data.qrCodeBase64;
+                    alert('二维码已刷新！');
+                }
+            })
+            .catch(error => {
+                alert('刷新失败：' + error.message);
+            });
+    }
+
+    // 表单提交验证
+    document.getElementById('qrForm').addEventListener('submit', function(e) {
+        const urlInput = document.getElementById('urlInput');
+        const url = urlInput.value.trim();
+
+        if (!url) {
+            e.preventDefault();
+            alert('请输入网址！');
+            urlInput.focus();
+            return;
+        }
+
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            e.preventDefault();
+            alert('网址必须以 http:// 或 https:// 开头！');
+            urlInput.focus();
+            return;
+        }
+    });
+
+    // 页面加载完成后的一些初始化
+    window.addEventListener('load', function() {
+        console.log('QR Code Generator 已就绪！');
+        console.log('📱 扫描二维码测试微信跳转功能');
+        console.log('🌐 当前服务地址：' + window.location.origin);
+    });
+</script>
+</body>
+</html>

@@ -40,3 +40,5 @@ chapter20/WEB-INF/classes/
 vtk_test/demo1/.vs/
 vtk_test/demo1/demo1/x64/
 vtk_test/demo1/x64/
+spring-qrcode-demo/target/
+spring-qrcode-demo/.idea/
