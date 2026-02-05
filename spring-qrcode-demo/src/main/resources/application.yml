@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 5000
   servlet:
     context-path: /
 
@@ -12,6 +12,9 @@ spring:
     suffix: .html
     mode: HTML
     encoding: UTF-8
+
+wechat:
+  token: abcd123456
 
 qrcode:
   default-url: https://www.sohu.com

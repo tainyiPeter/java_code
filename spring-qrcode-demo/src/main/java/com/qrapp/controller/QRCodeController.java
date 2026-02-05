@@ -1,6 +1,7 @@
 package com.qrapp.controller;
 
 import com.qrapp.service.QRCodeService;
+import com.qrapp.util.WechatSignatureUtil;
 import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,50 @@ public class QRCodeController {
 
     @Value("${qrcode.default-url}")
     private String defaultUrl;
+
+    @Value("${wechat.token}")  // 从配置读取Token
+    private String wechatToken;
+
+    /**
+     * 微信服务器验证
+     * 注意：这是Spring Boot应用，不是Python服务器
+     */
+    @GetMapping("/webchat")
+    @ResponseBody
+    public String checkWebChat(@RequestParam(name = "signature", required = false) String signature,
+                               @RequestParam(name = "timestamp", required = false) String timestamp,
+                               @RequestParam(name = "nonce", required = false) String nonce,
+                               @RequestParam(name = "echostr", required = false) String echostr) {
+
+        // 记录请求
+        System.out.println("\n=== 微信验证请求 ===");
+        System.out.println("signature: " + signature);
+        System.out.println("timestamp: " + timestamp);
+        System.out.println("nonce: " + nonce);
+        System.out.println("echostr: " + echostr);
+        System.out.println("配置Token: " + wechatToken);
+
+        // 参数检查
+        if (signature == null || timestamp == null || nonce == null || echostr == null) {
+            System.out.println("❌ 参数缺失");
+            return "参数缺失";
+        }
+
+        // 验证签名
+        boolean isValid = WechatSignatureUtil.checkSignature(wechatToken, signature, timestamp, nonce);
+
+        System.out.println("签名验证结果: " + (isValid ? "✅ 通过" : "❌ 失败"));
+
+        if (isValid) {
+            // 验证成功，原样返回echostr
+            System.out.println("返回echostr: " + echostr);
+            return echostr;
+        } else {
+            // 验证失败
+            System.out.println("验证失败");
+            return "fail";
+        }
+    }
 
     /**
      * 首页 - 显示二维码生成页面
@@ -111,9 +156,28 @@ public class QRCodeController {
     public Map<String, Object> health() {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "UP");
-        result.put("service", "QR Code Generator");
+        result.put("service", "QR Code Generator & WeChat Server");
         result.put("timestamp", System.currentTimeMillis());
         return result;
+    }
+
+    /**
+     * 测试微信签名验证
+     */
+    @GetMapping("/test/wechat")
+    @ResponseBody
+    public String testWechatSignature() {
+        // 手动测试签名验证
+        String token = wechatToken;
+        String timestamp = "1770273894";
+        String nonce = "1182099140";
+        String signature = "8dcaf2c82fb92d64ddd2653aa1c9138660ce800d";
+
+        boolean result = WechatSignatureUtil.checkSignature(token, signature, timestamp, nonce);
+
+        return "测试结果: " + (result ? "✅ 签名验证通过" : "❌ 签名验证失败") +
+                "\nToken: " + token +
+                "\n期望签名: 8dcaf2c82fb92d64ddd2653aa1c9138660ce800d";
     }
 
     /**
@@ -122,6 +186,8 @@ public class QRCodeController {
     private Map<String, String> getApiInfo() {
         Map<String, String> apiInfo = new HashMap<>();
         apiInfo.put("首页", "GET /");
+        apiInfo.put("微信验证", "GET /webchat?signature=xxx&timestamp=xxx&nonce=xxx&echostr=xxx");
+        apiInfo.put("测试签名", "GET /test/wechat");
         apiInfo.put("生成页面", "GET /generate?url={your_url}");
         apiInfo.put("获取图片", "GET /qrcode/image?content={your_content}");
         apiInfo.put("获取Base64", "GET /qrcode/base64?content={your_content}");
