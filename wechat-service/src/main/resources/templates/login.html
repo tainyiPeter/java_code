@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信登录</title>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+</head>
+<body>
+<h1>微信登录测试</h1>
+
+<div>
+    <button onclick="wechatLogin()">微信一键登录</button>
+</div>
+
+<div id="userInfo" style="display:none; margin-top: 20px; padding: 20px; border: 1px solid #ccc;">
+    <h3>用户信息</h3>
+    <img id="avatar" width="100" height="100" style="border-radius: 50%;">
+    <p>昵称: <span id="nickname"></span></p>
+    <p>OpenID: <span id="openid"></span></p>
+    <p>地区: <span id="location"></span></p>
+</div>
+
+<script>
+    // 微信登录
+    function wechatLogin() {
+        // 生成回调URL（当前页面）
+        const redirectUri = encodeURIComponent(window.location.origin + '/user');
+        const scope = 'snsapi_userinfo'; // 需要获取用户信息
+
+        // 获取授权URL
+        fetch(`/wechat/oauth/url?redirectUri=${redirectUri}&scope=${scope}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    // 跳转到微信授权页面
+                    window.location.href = data.data;
+                } else {
+                    alert('获取授权URL失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('请求失败:', error);
+                alert('请求失败');
+            });
+    }
+
+    // 检查URL中是否有授权返回的code
+    function checkAuthCode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+
+        if (code) {
+            // 如果是从微信授权回调回来的，获取用户信息
+            fetch(`/wechat/oauth/callback?code=${code}&state=${state}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        const user = data.data.userInfo;
+                        document.getElementById('userInfo').style.display = 'block';
+                        document.getElementById('avatar').src = user.headImgUrl;
+                        document.getElementById('nickname').textContent = user.nickname;
+                        document.getElementById('openid').textContent = data.data.openId;
+                        document.getElementById('location').textContent =
+                            user.country + ' ' + user.province + ' ' + user.city;
+
+                        console.log('用户信息:', user);
+                    } else {
+                        alert('获取用户信息失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取用户信息失败:', error);
+                    alert('获取用户信息失败');
+                });
+        }
+    }
+
+    // 页面加载时检查授权code
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthCode();
+    });
+</script>
+</body>
+</html>

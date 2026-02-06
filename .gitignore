@@ -42,3 +42,5 @@ vtk_test/demo1/demo1/x64/
 vtk_test/demo1/x64/
 spring-qrcode-demo/target/
 spring-qrcode-demo/.idea/
+wechat-service/.idea/
+wechat-service/target/

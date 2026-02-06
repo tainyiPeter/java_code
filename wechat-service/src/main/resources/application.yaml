@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  application:
+    name: wechat-service
+
+  # Redis配置（生产环境需要）
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# 微信测试号配置
+wechat:
+  test:
+    app-id: wx54d7f0c5bd8d51d1
+    app-secret: 7a177920d71a51d3c9b2ca4c5ecfb7de  # 请重置并使用你自己的
+    token: weixin_test
+    encoding-aes-key:
+
+    # 接口地址
+    api:
+      access-token: https://api.weixin.qq.com/cgi-bin/token
+      oauth-access-token: https://api.weixin.qq.com/sns/oauth2/access_token
+      user-info: https://api.weixin.qq.com/sns/userinfo
+      oauth-redirect: https://open.weixin.qq.com/connect/oauth2/authorize
+      jsapi-ticket: https://api.weixin.qq.com/cgi-bin/ticket/getticket
+
+    # 回调地址（根据实际部署修改）
+    callback-url: https://your-domain.com/wechat/callback

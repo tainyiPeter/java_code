@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信服务号测试</title>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+</head>
+<body>
+<h1>微信服务号测试 - Spring Boot</h1>
+
+<div>
+    <h3>功能列表</h3>
+    <ul>
+        <li><a href="/login">微信登录测试</a></li>
+        <li><a href="#" onclick="testAccessToken()">获取Access Token</a></li>
+        <li><a href="#" onclick="testShare()">分享测试</a></li>
+    </ul>
+</div>
+
+<script>
+    // 初始化微信JS-SDK
+    function initWxSdk() {
+        const currentUrl = window.location.href.split('#')[0];
+
+        fetch(`/wechat/js-sdk/config?url=${encodeURIComponent(currentUrl)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    const config = data.data;
+
+                    wx.config({
+                        debug: true, // 开启调试模式
+                        appId: config.appId,
+                        timestamp: config.timestamp,
+                        nonceStr: config.nonceStr,
+                        signature: config.signature,
+                        jsApiList: config.jsApiList
+                    });
+
+                    wx.ready(function() {
+                        console.log('JS-SDK 初始化成功');
+                    });
+
+                    wx.error(function(res) {
+                        console.error('JS-SDK 初始化失败:', res);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('获取JS-SDK配置失败:', error);
+            });
+    }
+
+    // 测试获取Access Token
+    function testAccessToken() {
+        fetch('/wechat/access-token')
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    alert('获取成功，查看控制台');
+                    console.log('Access Token:', data.data.access_token);
+                } else {
+                    alert('获取失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('请求失败:', error);
+            });
+    }
+
+    // 测试分享
+    function testShare() {
+        wx.ready(function() {
+            wx.updateAppMessageShareData({
+                title: 'Spring Boot微信测试',
+                desc: '这是一个Spring Boot集成微信服务号的测试页面',
+                link: window.location.href,
+                imgUrl: 'https://spring.io/img/favicon.png',
+                success: function() {
+                    alert('分享设置成功');
+                }
+            });
+        });
+    }
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        initWxSdk();
+    });
+</script>
+</body>
+</html>
