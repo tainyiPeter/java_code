@@ -1,13 +1,13 @@
 package com.wechat.util;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;  // 确保导入这个
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-@Slf4j
+@Slf4j  // 添加这个注解
 @Component
 public class HttpUtil {
 
@@ -25,7 +25,7 @@ public class HttpUtil {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             return response.getBody();
         } catch (Exception e) {
-            log.error("GET请求失败: {}", url, e);
+            log.error("GET请求失败: {}", url, e);  // 现在 log 可用
             throw new RuntimeException("HTTP请求失败", e);
         }
     }
