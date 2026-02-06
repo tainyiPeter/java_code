@@ -1,13 +1,15 @@
 package com.wechat.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import com.wechat.util.WechatUtil;
 import com.wechat.service.WechatService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j  // 添加这个注解，自动生成 log 变量
 @RestController
 @RequestMapping("/wechat/api")
 @RequiredArgsConstructor
@@ -66,6 +68,7 @@ public class WechatApiController {
      */
     @GetMapping("/create-qrcode")
     public String createQrCode(@RequestParam String sceneStr) {
+        log.info("create qrcode");  // 现在这行可以正常工作了
         String accessToken = wechatService.getAccessToken();
         String ticket = wechatUtil.createQrCode(accessToken, sceneStr, 0); // 永久二维码
 
