@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
@@ -22,15 +23,22 @@ public class RestTemplateConfig {
 
         // 获取当前所有的消息转换器
         List<org.springframework.http.converter.HttpMessageConverter<?>> converters =
-                new ArrayList<>(restTemplate.getMessageConverters());
+                new ArrayList<>();
 
-        // 移除默认的 StringHttpMessageConverter
-        converters.removeIf(converter -> converter instanceof StringHttpMessageConverter);
-
-        // 添加 UTF-8 编码的 StringHttpMessageConverter
+        // 1. 添加 UTF-8 编码的字符串转换器
         converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
-        // 设置回 RestTemplate
+        // 2. 添加 Jackson JSON 转换器
+        MappingJackson2HttpMessageConverter jacksonConverter =
+                new MappingJackson2HttpMessageConverter();
+        jacksonConverter.setDefaultCharset(StandardCharsets.UTF_8);
+        converters.add(jacksonConverter);
+
+        // 3. 添加其他转换器
+        converters.add(new org.springframework.http.converter.FormHttpMessageConverter());
+        converters.add(new org.springframework.http.converter.ByteArrayHttpMessageConverter());
+
+        // 设置消息转换器
         restTemplate.setMessageConverters(converters);
 
         return restTemplate;
