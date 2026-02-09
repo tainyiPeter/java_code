@@ -84,6 +84,7 @@ public class WechatServiceImpl implements WechatService {
                 + "?appid=" + appId + "&secret=" + appSecret
                 + "&code=" + code + "&grant_type=authorization_code";
 
+        log.info("getOAuthAccessToken, url: {}", url);
         try {
             String response = restTemplate.getForObject(url, String.class);
             JSONObject json = JSON.parseObject(response);
@@ -125,7 +126,7 @@ public class WechatServiceImpl implements WechatService {
             WechatUserDTO user = new WechatUserDTO();
             user.setOpenId(json.getString("openid"));
             user.setNickname(json.getString("nickname"));
-            user.setSex(json.getIntValue("sex"));
+            user.setGender(json.getIntValue("sex"));
             user.setProvince(json.getString("province"));
             user.setCity(json.getString("city"));
             user.setCountry(json.getString("country"));

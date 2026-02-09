@@ -26,6 +26,10 @@ spring:
 
 # 微信测试号配置
 wechat:
+  app-id: wx54d7f0c5bd8d51d1
+  app-secret: 7a177920d71a51d3c9b2ca4c5ecfb7de
+  token: myToken  # 用于服务器验证
+
   task:
     enabled: false  # 设为false禁用定时任务
 
