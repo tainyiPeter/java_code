@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -115,7 +116,11 @@ public class WechatServiceImpl implements WechatService {
                 + "?access_token=" + accessToken + "&openid=" + openId + "&lang=zh_CN";
 
         try {
-            String response = restTemplate.getForObject(url, String.class);
+            // 使用 getForEntity 替代 getForObject 以便获取响应头信息
+            org.springframework.http.ResponseEntity<String> responseEntity =
+                    restTemplate.getForEntity(url, String.class);
+
+            String response = responseEntity.getBody();
             JSONObject json = JSON.parseObject(response);
 
             if (json.containsKey("errcode")) {
@@ -125,7 +130,15 @@ public class WechatServiceImpl implements WechatService {
 
             WechatUserDTO user = new WechatUserDTO();
             user.setOpenId(json.getString("openid"));
-            user.setNickname(json.getString("nickname"));
+
+            // 获取昵称并处理可能的编码问题
+            String nickname = json.getString("nickname");
+            if (nickname != null) {
+                // 尝试修复编码问题
+                nickname = fixWechatNicknameEncoding(nickname);
+            }
+            user.setNickname(nickname);
+
             user.setGender(json.getIntValue("sex"));
             user.setProvince(json.getString("province"));
             user.setCity(json.getString("city"));
@@ -145,7 +158,7 @@ public class WechatServiceImpl implements WechatService {
     @Override
     public String generateOAuthUrl(String redirectUri, String scope, String state) {
         String appId = wechatProperties.getAppId();
-        String encodedUri = java.net.URLEncoder.encode(redirectUri);
+        String encodedUri = java.net.URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
 
         return wechatProperties.getApi().getOauthRedirect()
                 + "?appid=" + appId
@@ -217,5 +230,102 @@ public class WechatServiceImpl implements WechatService {
         });
 
         return config;
+    }
+
+    /**
+     * 测试编码方法
+     */
+    @Override
+    public void testEncoding() {
+        try {
+            String testUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+                    + wechatProperties.getAppId()
+                    + "&secret=" + wechatProperties.getAppSecret();
+
+            org.springframework.http.ResponseEntity<String> response = restTemplate.getForEntity(testUrl, String.class);
+
+            String charset = "null";
+            if (response.getHeaders().getContentType() != null &&
+                    response.getHeaders().getContentType().getCharset() != null) {
+                charset = response.getHeaders().getContentType().getCharset().name();
+            }
+
+            log.info("微信接口编码测试 - 响应字符集: {}", charset);
+
+            if (response.getBody() != null) {
+                String body = response.getBody();
+                log.info("微信接口编码测试 - 响应体前100字符: {}",
+                        body.substring(0, Math.min(100, body.length())));
+            }
+        } catch (Exception e) {
+            log.error("微信接口编码测试失败", e);
+        }
+    }
+
+    /**
+     * 修复微信昵称编码问题
+     * @param nickname 原始昵称
+     * @return 修复后的昵称
+     */
+    private String fixWechatNicknameEncoding(String nickname) {
+        if (nickname == null || nickname.isEmpty()) {
+            return nickname;
+        }
+
+        try {
+            // 如果昵称看起来是乱码，尝试转换编码
+            if (isLikelyGarbled(nickname)) {
+                // 尝试从 ISO-8859-1 转换到 UTF-8
+                byte[] isoBytes = nickname.getBytes(StandardCharsets.ISO_8859_1);
+                String utf8String = new String(isoBytes, StandardCharsets.UTF_8);
+
+                // 检查转换后是否包含中文字符
+                if (containsChinese(utf8String) && !isLikelyGarbled(utf8String)) {
+                    log.debug("修复微信昵称编码: {} -> {}", nickname, utf8String);
+                    return utf8String;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("修复微信昵称编码时出错: {}", e.getMessage());
+        }
+
+        return nickname;
+    }
+
+    /**
+     * 判断字符串是否可能是乱码
+     */
+    private boolean isLikelyGarbled(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+
+        // 检查是否包含典型的乱码字符
+        for (char c : str.toCharArray()) {
+            // 如果包含无法显示的字符，可能是乱码
+            if (c == '?' || c == '�' || (c >= 0x80 && c <= 0x9F)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断字符串是否包含中文字符
+     */
+    private boolean containsChinese(String str) {
+        if (str == null) {
+            return false;
+        }
+
+        for (char c : str.toCharArray()) {
+            // 判断是否是中文字符
+            if (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

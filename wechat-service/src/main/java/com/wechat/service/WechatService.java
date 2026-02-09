@@ -40,4 +40,9 @@ public interface WechatService {
      * 获取jsapi_ticket
      */
     String getJsapiTicket();
+
+    /**
+     * 测试编码
+     */
+    void testEncoding();
 }
