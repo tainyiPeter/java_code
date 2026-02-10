@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -390,7 +394,165 @@ public class WechatController {
         }
     }
 
-    // ... 其他原有方法保持不变 ...
+    /**
+     * 接收微信消息（POST请求）
+     * 用于接收用户发送的消息
+     */
+    @PostMapping("/verify")
+    @ResponseBody
+    public String handleMessage(
+            @RequestParam("signature") String signature,
+            @RequestParam("timestamp") String timestamp,
+            @RequestParam("nonce") String nonce,
+            @RequestBody String requestBody) {
+
+        log.info("收到微信消息: {}", requestBody);
+
+        // 验证签名
+        if (!SignUtil.checkSignature(wechatToken, timestamp, nonce, signature)) {
+            return "验证失败";
+        }
+
+        // 使用WechatUtil处理消息
+        String response = wechatUtil.handleMessage(requestBody);
+        return response;
+    }
+
+    /**
+     * 网页授权回调接口 - 修正版
+     */
+    @GetMapping("/auth-callback")
+    @ResponseBody
+    public ResponseEntity<?> oauthCallback(
+            @RequestParam("code") String code,
+            @RequestParam(value = "state", required = false) String state) {
+
+        try {
+            log.info("收到微信回调！code={}, state={}", code, state);
+
+            // 1. 获取access_token
+            String accessTokenUrl = String.format("%s?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+                    ACCESS_TOKEN_URL, appId, appSecret, code);
+
+            String response = httpUtil.doGet(accessTokenUrl);
+            JSONObject tokenJson = JSON.parseObject(response);
+
+            // 检查错误
+            if (tokenJson.containsKey("errcode")) {
+                log.error("获取access_token失败: {}", tokenJson);
+                return ResponseEntity.badRequest().body(
+                        Map.of("code", -1, "message", "授权失败: " + tokenJson.getString("errmsg"))
+                );
+            }
+
+            String accessToken = tokenJson.getString("access_token");
+            String openId = tokenJson.getString("openid");
+            String refreshToken = tokenJson.getString("refresh_token");
+            Integer expiresIn = tokenJson.getInteger("expires_in");
+            String scope = tokenJson.getString("scope");
+
+            // 2. 获取用户信息（如果scope是snsapi_userinfo）
+            WechatUserDTO userInfo = null;
+            if ("snsapi_userinfo".equals(scope)) {
+                userInfo = getUserInfo(accessToken, openId);
+            }
+
+            // 3. 构建Token响应 - 使用 AccessTokenResponse
+            AccessTokenResponse tokenResponse = new AccessTokenResponse();
+            tokenResponse.setAccessToken(accessToken);
+            tokenResponse.setExpiresIn(expiresIn);
+            tokenResponse.setRefreshToken(refreshToken);
+            tokenResponse.setOpenid(openId);
+            tokenResponse.setScope(scope);
+            tokenResponse.setUnionId(tokenJson.getString("unionid"));
+            tokenResponse.setIsSnapshotUser(tokenJson.getInteger("is_snapshotuser"));
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("code", 0);
+            result.put("data", Map.of(
+                    "tokenInfo", tokenResponse,
+                    "userInfo", userInfo
+            ));
+            result.put("message", "授权成功");
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("网页授权失败", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("code", -1, "message", "授权失败: " + e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * 完善后的login接口 - 修正版
+     */
+    @GetMapping("/login")
+    @ResponseBody
+    public ResponseEntity<?> login(
+            @RequestParam("code") String code,
+            @RequestParam(value = "state", required = false) String state) {
+
+        log.info("微信授权登录 - code: {}, state: {}", code, state);
+
+        try {
+            // 1. 构建获取access_token的URL
+            String accessTokenUrl = String.format("%s?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+                    ACCESS_TOKEN_URL, appId, appSecret, code);
+
+            log.info("请求access_token URL: {}", accessTokenUrl);
+
+            // 2. 调用微信API
+            String response = httpUtil.doGet(accessTokenUrl);
+            JSONObject tokenJson = JSON.parseObject(response);
+
+            // 3. 检查响应
+            if (tokenJson.containsKey("errcode")) {
+                int errCode = tokenJson.getIntValue("errcode");
+                String errMsg = tokenJson.getString("errmsg");
+                log.error("获取access_token失败: errcode={}, errmsg={}", errCode, errMsg);
+                return ResponseEntity.badRequest().body(
+                        Map.of("code", errCode, "message", "微信授权失败: " + errMsg)
+                );
+            }
+
+            // 4. 构建返回对象
+            AccessTokenResponse tokenResponse = new AccessTokenResponse();
+            tokenResponse.setAccessToken(tokenJson.getString("access_token"));
+            tokenResponse.setExpiresIn(tokenJson.getInteger("expires_in"));
+            tokenResponse.setRefreshToken(tokenJson.getString("refresh_token"));
+            tokenResponse.setOpenid(tokenJson.getString("openid"));
+            tokenResponse.setScope(tokenJson.getString("scope"));
+            tokenResponse.setIsSnapshotUser(tokenJson.getInteger("is_snapshotuser"));
+            tokenResponse.setUnionId(tokenJson.getString("unionid"));
+
+            log.info("获取access_token成功: openid={}, unionid={}",
+                    tokenResponse.getOpenid(), tokenResponse.getUnionId());
+
+            // 5. 可选：获取用户详细信息
+            if ("snsapi_userinfo".equals(tokenResponse.getScope())) {
+                // 使用 WechatUserDTO，不是 UserInfoResponse
+                WechatUserDTO userInfo = getUserInfo(tokenResponse.getAccessToken(), tokenResponse.getOpenid());
+                if (userInfo != null) {
+                    log.info("用户信息: nickname={}, city={}, province={}",
+                            userInfo.getNickname(), userInfo.getCity(), userInfo.getProvince());
+                    // 可以将userInfo也返回
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("tokenInfo", tokenResponse);
+                    data.put("userInfo", userInfo);
+                    return ResponseEntity.ok(Map.of("code", 0, "data", data, "message", "success"));
+                }
+            }
+
+            return ResponseEntity.ok(Map.of("code", 0, "data", tokenResponse, "message", "success"));
+        } catch (Exception e) {
+            log.error("登录接口异常", e);
+            return ResponseEntity.internalServerError().body(
+                    Map.of("code", -1, "message", "系统异常: " + e.getMessage())
+            );
+        }
+    }
 
     /**
      * 获取用户详细信息 - 修正版
@@ -492,6 +654,7 @@ public class WechatController {
      * 刷新access_token - 修正版
      */
     @GetMapping("/refresh")
+    @ResponseBody
     public ResponseEntity<?> refreshToken(@RequestParam("refresh_token") String refreshToken) {
         try {
             String refreshUrl = String.format("https://api.weixin.qq.com/sns/oauth2/refresh_token?" +
@@ -530,6 +693,7 @@ public class WechatController {
      * 检查access_token是否有效
      */
     @GetMapping("/check")
+    @ResponseBody
     public ResponseEntity<?> checkToken(
             @RequestParam("access_token") String accessToken,
             @RequestParam("openid") String openid) {
@@ -558,6 +722,7 @@ public class WechatController {
      * 获取JS-SDK配置（示例，需要基础access_token）
      */
     @GetMapping("/js-sdk/config")
+    @ResponseBody
     public ResponseEntity<?> getJsSdkConfig(@RequestParam("url") String url) {
         try {
             // 注意：这里需要基础access_token，不是网页授权的access_token
@@ -587,6 +752,7 @@ public class WechatController {
      * 获取基础access_token（测试用，实际应该定时获取并缓存）
      */
     @GetMapping("/access-token")
+    @ResponseBody
     public ResponseEntity<?> getAccessToken() {
         try {
             String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
@@ -611,6 +777,7 @@ public class WechatController {
             );
         }
     }
+
     /**
      * 智能授权 - 先检查用户是否已关注
      */
@@ -861,12 +1028,48 @@ public class WechatController {
         }
     }
 
-    /*
-    ** 接口测试
+    /**
+     * 从Cookie获取openid
+     */
+    private String getOpenidFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("wechat_openid".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 构建重定向URL
+     */
+    private String buildRedirectUrl(String redirectUri, String state) {
+        if (redirectUri == null || redirectUri.isEmpty()) {
+            redirectUri = "/user/center";
+        }
+
+        if (state != null && !state.isEmpty()) {
+            // 如果redirectUri已经包含参数，添加&，否则添加?
+            if (redirectUri.contains("?")) {
+                redirectUri += "&state=" + state;
+            } else {
+                redirectUri += "?state=" + state;
+            }
+        }
+
+        return "redirect:" + redirectUri;
+    }
+
+    /**
+     * 接口测试
      */
     @GetMapping("/mytest")
     @ResponseBody  // 表明返回的是数据，而不是视图模板
-    public void mytest() {
+    public String mytest() {
         log.info("this is mytest appid:{}, appSecret:{}", appId, appSecret);
+        return "测试成功，appId: " + appId;
     }
 }
