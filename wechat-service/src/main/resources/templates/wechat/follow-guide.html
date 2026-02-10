@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>请先关注公众号</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        h1 {
+            color: #07c160;
+            margin-bottom: 20px;
+        }
+        .qrcode-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        .qrcode {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+        }
+        .steps {
+            text-align: left;
+            margin: 30px 0;
+            padding-left: 20px;
+        }
+        .steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #07c160;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 20px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-check {
+            background-color: #007bff;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .tip {
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        #checkResult {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>请先关注测试号</h1>
+
+    <p>使用此功能需要先关注我们的测试号</p>
+
+    <div class="qrcode-container">
+        <p><strong>扫码关注测试号：</strong></p>
+        <div class="qrcode">
+            <img th:src="${qrCodeUrl}" alt="测试号二维码" style="width:100%;height:100%;">
+        </div>
+        <p class="tip">使用微信扫描上方二维码关注</p>
+    </div>
+
+    <div class="steps">
+        <h3>操作步骤：</h3>
+        <ol>
+            <li>使用微信扫描上方二维码</li>
+            <li>关注测试号</li>
+            <li>关注后点击下方"我已关注"按钮</li>
+            <li>系统将自动跳转到目标页面</li>
+        </ol>
+    </div>
+
+    <div>
+        <button onclick="checkSubscribe()" class="btn btn-check">我已关注，继续</button>
+        <button onclick="refreshPage()" class="btn">刷新页面</button>
+    </div>
+
+    <div id="checkResult"></div>
+
+    <div class="tip">
+        <p>如果已经关注但仍提示错误，请尝试：</p>
+        <p>1. 取消关注后重新关注</p>
+        <p>2. 等待几分钟后重试</p>
+        <p>3. 清除微信缓存</p>
+    </div>
+</div>
+
+<script>
+    let checking = false;
+
+    function checkSubscribe() {
+        if (checking) return;
+
+        checking = true;
+        const btn = document.querySelector('.btn-check');
+        const originalText = btn.textContent;
+        btn.textContent = '检查中...';
+        btn.disabled = true;
+
+        const resultDiv = document.getElementById('checkResult');
+        resultDiv.style.display = 'none';
+
+        // 这里需要从Cookie或session获取openid
+        // 实际项目中应该从后端获取
+        fetch('/wechat/check-subscribe')
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 0 && data.data.subscribed) {
+                    // 已关注，跳转
+                    resultDiv.className = 'success';
+                    resultDiv.textContent = '✓ 已关注，正在跳转...';
+                    resultDiv.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = '/wechat/follow/callback';
+                    }, 1500);
+                } else {
+                    // 未关注
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = '✗ 检测到您尚未关注，请先关注测试号';
+                    resultDiv.style.display = 'block';
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    checking = false;
+                }
+            })
+            .catch(error => {
+                console.error('检查失败:', error);
+                resultDiv.className = 'error';
+                resultDiv.textContent = '检查失败，请重试';
+                resultDiv.style.display = 'block';
+
+                btn.textContent = originalText;
+                btn.disabled = false;
+                checking = false;
+            });
+    }
+
+    function refreshPage() {
+        window.location.reload();
+    }
+
+    // 自动检查（可选）
+    setTimeout(checkSubscribe, 3000);
+</script>
+</body>
+</html>

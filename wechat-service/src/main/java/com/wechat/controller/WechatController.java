@@ -611,4 +611,262 @@ public class WechatController {
             );
         }
     }
+    /**
+     * 智能授权 - 先检查用户是否已关注
+     */
+    @GetMapping("/auth/smart")
+    public String smartAuth(
+            @RequestParam(value = "redirectUri", required = false) String redirectUri,
+            @RequestParam(value = "state", required = false) String state,
+            HttpServletRequest request) {
+
+        try {
+            // 1. 检查是否有openid（用户可能已经授权过）
+            String openid = getOpenidFromCookie(request);
+
+            if (openid != null) {
+                // 2. 检查用户是否已关注
+                if (isUserSubscribed(openid)) {
+                    // 已关注且已授权，直接跳转
+                    log.info("用户已关注且已授权，直接跳转到目标页面");
+                    return buildRedirectUrl(redirectUri, state);
+                } else {
+                    // 有openid但未关注，提示关注
+                    log.info("用户有openid但未关注，跳转到关注页面");
+                    return "redirect:/wechat/follow-guide";
+                }
+            }
+
+            // 3. 用户既没有openid，也没有关注，进行授权
+            if (redirectUri == null || redirectUri.isEmpty()) {
+                redirectUri = "https://91qj1470uc04.vicp.fun/user/center";
+            }
+
+            if (state == null || state.isEmpty()) {
+                state = generateRandomState();
+            }
+
+            String encodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.name());
+            String authUrl = String.format("%s?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect",
+                    AUTH_URL, appId, encodedRedirectUri, state);
+
+            log.info("用户未关注，使用静默授权获取openid");
+            return "redirect:" + authUrl;
+
+        } catch (Exception e) {
+            log.error("智能授权失败", e);
+            return "redirect:/error?message=授权失败";
+        }
+    }
+
+    /**
+     * 检查用户是否已关注
+     */
+    private boolean isUserSubscribed(String openid) {
+        try {
+            // 获取基础access_token（需要缓存）
+            String accessToken = getCachedAccessToken();
+            if (accessToken == null) {
+                log.warn("无法获取基础access_token");
+                return false;
+            }
+
+            // 调用微信API检查用户信息
+            String userInfoUrl = String.format("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN",
+                    accessToken, openid);
+
+            String response = httpUtil.doGet(userInfoUrl);
+            JSONObject json = JSON.parseObject(response);
+
+            // 如果用户关注，subscribe字段为1
+            if (json.containsKey("subscribe") && json.getIntValue("subscribe") == 1) {
+                return true;
+            }
+
+            // 错误处理
+            if (json.containsKey("errcode")) {
+                log.warn("检查用户关注状态失败: {}", json.getString("errmsg"));
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            log.error("检查用户关注状态异常", e);
+            return false;
+        }
+    }
+
+    /**
+     * 获取基础access_token（需要实现缓存机制）
+     */
+    private String getCachedAccessToken() {
+        // 这里应该从缓存或数据库获取
+        // 简单实现：每次重新获取
+        try {
+            String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+                    appId, appSecret);
+
+            String response = httpUtil.doGet(url);
+            JSONObject json = JSON.parseObject(response);
+
+            if (json.containsKey("access_token")) {
+                return json.getString("access_token");
+            }
+
+            log.error("获取基础access_token失败: {}", response);
+            return null;
+
+        } catch (Exception e) {
+            log.error("获取基础access_token异常", e);
+            return null;
+        }
+    }
+
+    /**
+     * 新版授权流程（处理未关注用户）
+     */
+    @GetMapping("/auth/new")
+    public String newAuthFlow(
+            @RequestParam(value = "redirectUri", required = false) String redirectUri,
+            @RequestParam(value = "state", required = false) String state,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        try {
+            // 1. 检查Cookie中是否有openid
+            String openid = getOpenidFromCookie(request);
+
+            if (openid != null) {
+                // 2. 检查用户是否已关注
+                if (isUserSubscribed(openid)) {
+                    // 已关注，直接跳转到目标页面
+                    return buildRedirectUrl(redirectUri, state);
+                } else {
+                    // 未关注，保存redirectUri到session，跳转到关注页面
+                    HttpSession session = request.getSession();
+                    session.setAttribute("pendingRedirectUri", redirectUri);
+                    session.setAttribute("pendingState", state);
+                    return "redirect:/wechat/follow-guide";
+                }
+            }
+
+            // 3. 没有openid，先使用静默授权获取openid
+            String callbackUrl = "https://91qj1470uc04.vicp.fun/wechat/auth/callback";
+            if (redirectUri != null) {
+                callbackUrl += "?pendingRedirectUri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.name());
+            }
+            if (state != null) {
+                callbackUrl += "&pendingState=" + state;
+            }
+
+            String encodedCallbackUrl = URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8.name());
+            String authUrl = String.format("%s?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=auth_new#wechat_redirect",
+                    AUTH_URL, appId, encodedCallbackUrl);
+
+            return "redirect:" + authUrl;
+
+        } catch (Exception e) {
+            log.error("新版授权流程失败", e);
+            return "redirect:/error?message=授权失败";
+        }
+    }
+
+    /**
+     * 授权回调处理
+     */
+    @GetMapping("/auth/callback")
+    public String authCallback(
+            @RequestParam("code") String code,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "pendingRedirectUri", required = false) String pendingRedirectUri,
+            @RequestParam(value = "pendingState", required = false) String pendingState,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        try {
+            // 1. 使用code获取openid
+            String accessTokenUrl = String.format("%s?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+                    ACCESS_TOKEN_URL, appId, appSecret, code);
+
+            String tokenResponse = httpUtil.doGet(accessTokenUrl);
+            JSONObject tokenJson = JSON.parseObject(tokenResponse);
+
+            if (tokenJson.containsKey("errcode")) {
+                log.error("获取access_token失败: {}", tokenJson);
+                return "redirect:/error?message=授权失败";
+            }
+
+            String openid = tokenJson.getString("openid");
+
+            // 2. 保存openid到Cookie
+            Cookie openidCookie = new Cookie("wechat_openid", openid);
+            openidCookie.setMaxAge(30 * 24 * 60 * 60); // 30天
+            openidCookie.setPath("/");
+            openidCookie.setHttpOnly(true);
+            response.addCookie(openidCookie);
+
+            // 3. 检查是否已关注
+            if (isUserSubscribed(openid)) {
+                // 已关注，跳转到目标页面
+                String redirectUri = pendingRedirectUri != null ? pendingRedirectUri : "/user/center";
+                String finalState = pendingState != null ? pendingState : state;
+                return buildRedirectUrl(redirectUri, finalState);
+            } else {
+                // 未关注，保存到session，跳转到关注页面
+                HttpSession session = request.getSession();
+                session.setAttribute("pendingRedirectUri", pendingRedirectUri);
+                session.setAttribute("pendingState", pendingState);
+                session.setAttribute("userOpenid", openid);
+                return "redirect:/wechat/follow-guide";
+            }
+
+        } catch (Exception e) {
+            log.error("授权回调处理失败", e);
+            return "redirect:/error?message=回调处理失败";
+        }
+    }
+
+    /**
+     * 关注后回调
+     */
+    @GetMapping("/follow/callback")
+    public String followCallback(HttpServletRequest request) {
+        try {
+            HttpSession session = request.getSession();
+            String openid = (String) session.getAttribute("userOpenid");
+            String pendingRedirectUri = (String) session.getAttribute("pendingRedirectUri");
+            String pendingState = (String) session.getAttribute("pendingState");
+
+            if (openid == null) {
+                return "redirect:/error?message=未找到用户信息";
+            }
+
+            // 检查是否已关注
+            if (isUserSubscribed(openid)) {
+                // 清除session数据
+                session.removeAttribute("userOpenid");
+                session.removeAttribute("pendingRedirectUri");
+                session.removeAttribute("pendingState");
+
+                // 跳转到目标页面
+                String redirectUri = pendingRedirectUri != null ? pendingRedirectUri : "/user/center";
+                return "redirect:" + redirectUri;
+            } else {
+                return "redirect:/wechat/follow-guide?message=请先关注公众号";
+            }
+
+        } catch (Exception e) {
+            log.error("关注回调处理失败", e);
+            return "redirect:/error?message=处理失败";
+        }
+    }
+
+    /*
+    ** 接口测试
+     */
+    @GetMapping("/mytest")
+    @ResponseBody  // 表明返回的是数据，而不是视图模板
+    public void mytest() {
+        log.info("this is mytest appid:{}, appSecret:{}", appId, appSecret);
+    }
 }
