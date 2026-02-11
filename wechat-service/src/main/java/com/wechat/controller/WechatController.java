@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wechat.dto.AccessTokenResponse;
 import com.wechat.dto.WechatUserDTO;
+import com.wechat.service.QRCodeService;
 import com.wechat.util.HttpUtil;
 import com.wechat.util.SignUtil;
 import com.wechat.util.WechatUtil;
@@ -24,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.ui.Model;
+
 
 @Slf4j
 @Controller  // 改为 @Controller，支持页面跳转
@@ -42,6 +45,9 @@ public class WechatController {
 
     @Value("${wechat.token:}")
     private String wechatToken;
+
+    // 通过构造函数注入（@RequiredArgsConstructor会自动生成构造函数）
+    private final QRCodeService qrCodeService;
 
     // 微信API地址常量
     private static final String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token";
@@ -790,6 +796,7 @@ public class WechatController {
         try {
             // 1. 检查是否有openid（用户可能已经授权过）
             String openid = getOpenidFromCookie(request);
+            log.info("call auth smart route openid:{}", openid);
 
             if (openid != null) {
                 // 2. 检查用户是否已关注
@@ -817,7 +824,7 @@ public class WechatController {
             String authUrl = String.format("%s?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect",
                     AUTH_URL, appId, encodedRedirectUri, state);
 
-            log.info("用户未关注，使用静默授权获取openid");
+            log.info("用户未关注，使用静默授权获取openid,authUrl:{}", authUrl);
             return "redirect:" + authUrl;
 
         } catch (Exception e) {
@@ -1071,5 +1078,49 @@ public class WechatController {
     public String mytest() {
         log.info("this is mytest appid:{}, appSecret:{}", appId, appSecret);
         return "测试成功，appId: " + appId;
+    }
+
+    /*
+    * 测试页面
+     */
+    @GetMapping("/pagetest")
+    public String Pagetest() {
+        log.info("pageTest ...");
+        //return "redirect:https://www.sohu.com";
+        return "redirect:/wechat/mytest";
+    }
+
+    /*
+    * 跳转到 follow-guide
+     */
+    @GetMapping("/fg")
+    public String FollowGuide() {
+        log.info("pageTest ...");
+        return "wechat/follow-guide";
+    }
+
+    @GetMapping("/follow-guide")
+    public String showFollowGuide(Model model) {
+//        // 使用一个在线的二维码生成服务或测试图片
+//        String testQrCode = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://mp.weixin.qq.com/mp/profile_ext";
+//
+//        // 或者使用本地的静态资源
+//        // String localQrCode = "/static/images/wechat-qrcode.png";
+//
+//        model.addAttribute("qrCodeUrl", testQrCode);
+        // 生成微信公众号关注页面的二维码
+        String qrContent = "https://open.weixin.qq.com/qr/code?username=你的公众号原始ID";
+        qrContent = "https://www.sohu.com";
+
+
+        // 方法1：生成Base64二维码
+        String qrCodeBase64 = qrCodeService.generateQRCodeBase64(qrContent, 200, 200);
+
+        // 方法2：直接使用微信接口（如果没有微信公众号权限，可以用这个）
+        // String qrCodeUrl = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=你的ticket";
+
+        model.addAttribute("qrCodeUrl", qrCodeBase64);
+
+        return "wechat/follow-guide";
     }
 }
