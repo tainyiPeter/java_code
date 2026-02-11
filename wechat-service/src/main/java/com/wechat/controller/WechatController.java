@@ -1110,7 +1110,8 @@ public class WechatController {
 //        model.addAttribute("qrCodeUrl", testQrCode);
         // 生成微信公众号关注页面的二维码
         String qrContent = "https://open.weixin.qq.com/qr/code?username=你的公众号原始ID";
-        qrContent = "https://www.sohu.com";
+        qrContent = "https://open.weixin.qq.com/qr/code?username=gh_502154cc470e";
+        //qrContent = "https://www.sohu.com";
 
 
         // 方法1：生成Base64二维码
