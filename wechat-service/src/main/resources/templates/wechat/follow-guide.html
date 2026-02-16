@@ -1,188 +1,664 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>请先关注公众号</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             text-align: center;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         .container {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-top: 50px;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #07c160, #007bff);
         }
         h1 {
-            color: #07c160;
-            margin-bottom: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
         .qrcode-container {
             margin: 30px 0;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 10px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            position: relative;
+            border: 2px dashed #ddd;
+        }
+        .qrcode-container::before {
+            content: '⬇️';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
         }
         .qrcode {
-            width: 200px;
-            height: 200px;
+            width: 240px;
+            height: 240px;
             margin: 0 auto;
-            border: 1px solid #ddd;
-            padding: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 4px solid white;
             background: white;
         }
-        .steps {
-            text-align: left;
-            margin: 30px 0;
-            padding-left: 20px;
+        .qrcode img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
-        .steps li {
-            margin: 10px 0;
-            line-height: 1.6;
+        .qrcode-loading {
+            width: 240px;
+            height: 240px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            border-radius: 10px;
+            border: 4px solid white;
         }
-        .btn {
-            display: inline-block;
-            background-color: #07c160;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            margin: 20px 10px;
-            border: none;
-            cursor: pointer;
+        .qrcode-loading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #07c160;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .btn-check {
-            background-color: #007bff;
-        }
-        .btn:hover {
-            opacity: 0.9;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .tip {
             color: #666;
             font-size: 14px;
-            margin-top: 20px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .steps {
+            text-align: left;
+            margin: 35px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 4px solid #07c160;
+        }
+        .steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .steps h3::before {
+            content: '📋';
+            margin-right: 10px;
+        }
+        .steps ol {
+            margin: 0;
+            padding-left: 20px;
+            color: #555;
+        }
+        .steps li {
+            margin: 12px 0;
+            line-height: 1.6;
+            padding-left: 5px;
+        }
+        .steps li::marker {
+            color: #07c160;
+            font-weight: bold;
+        }
+        .button-group {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            gap: 8px;
+        }
+        .btn-check {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.4);
+        }
+        .btn-check:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-refresh {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108,117,125,0.3);
+        }
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108,117,125,0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40,167,69,0.4);
         }
         #checkResult {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+            border-left: 4px solid;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        .result-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .result-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        .countdown {
+            font-size: 14px;
+            color: #666;
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+        }
+        .countdown-number {
+            font-weight: bold;
+            color: #07c160;
+            font-size: 18px;
+            margin: 0 5px;
+        }
+        .footer-tip {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 12px;
+            text-align: left;
+        }
+        .footer-tip h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .footer-tip h4::before {
+            content: '💡';
+            margin-right: 10px;
+        }
+        .footer-tip p {
+            color: #666;
+            font-size: 14px;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .hidden {
             display: none;
         }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
+        .icon {
+            font-size: 20px;
         }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
+        .success-icon {
+            color: #28a745;
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        .auto-check-info {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(0,123,255,0.1);
+            border-radius: 8px;
+            color: #0056b3;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>请先关注测试号</h1>
+    <!-- 成功关注后的内容（默认隐藏） -->
+    <div id="successContent" class="hidden">
+        <div class="success-icon">🎉</div>
+        <h1>关注成功！</h1>
+        <p class="subtitle">您已成功关注公众号，正在为您跳转...</p>
 
-    <p>使用此功能需要先关注我们的测试号</p>
-
-    <div class="qrcode-container">
-        <p><strong>扫码关注测试号：</strong></p>
-        <div class="qrcode">
-            <img th:src="${qrCodeUrl}" alt="测试号二维码" style="width:100%;height:100%;">
+        <div id="successResult" class="result-success">
+            <p>✓ 系统检测到您已关注公众号</p>
+            <p>正在获取您的授权信息，请稍候...</p>
         </div>
-        <p class="tip">使用微信扫描上方二维码关注</p>
+
+        <div class="countdown">
+            页面将在 <span id="countdownNumber" class="countdown-number">5</span> 秒后自动跳转
+        </div>
+
+        <div class="button-group">
+            <button onclick="continueToApp()" class="btn btn-success">
+                <span class="icon">🚀</span> 立即跳转
+            </button>
+            <button onclick="refreshPage()" class="btn btn-refresh">
+                <span class="icon">↻</span> 重新检测
+            </button>
+        </div>
     </div>
 
-    <div class="steps">
-        <h3>操作步骤：</h3>
-        <ol>
-            <li>使用微信扫描上方二维码</li>
-            <li>关注测试号</li>
-            <li>关注后点击下方"我已关注"按钮</li>
-            <li>系统将自动跳转到目标页面</li>
-        </ol>
-    </div>
+    <!-- 关注引导内容（默认显示） -->
+    <div id="guideContent">
+        <h1>请先关注测试号</h1>
+        <p class="subtitle">使用此功能需要先关注我们的测试号，关注后即可使用完整功能</p>
 
-    <div>
-        <button onclick="checkSubscribe()" class="btn btn-check">我已关注，继续</button>
-        <button onclick="refreshPage()" class="btn">刷新页面</button>
-    </div>
+        <div class="qrcode-container">
+            <p><strong>📱 扫码关注测试号：</strong></p>
 
-    <div id="checkResult"></div>
+            <!-- 二维码显示区域 -->
+            <div id="qrcodeImage" class="qrcode">
+                <img th:src="${qrCodeUrl}" alt="测试号二维码" style="width:100%;height:100%;">
+            </div>
 
-    <div class="tip">
-        <p>如果已经关注但仍提示错误，请尝试：</p>
-        <p>1. 取消关注后重新关注</p>
-        <p>2. 等待几分钟后重试</p>
-        <p>3. 清除微信缓存</p>
+            <!-- 二维码加载中 -->
+            <div id="qrcodeLoading" class="qrcode-loading">
+                <div class="spinner"></div>
+            </div>
+
+            <p class="tip">
+                <span style="color:#ff6b6b;">⚠️ 注意：</span><br>
+                请使用 <strong>微信</strong> 扫描上方二维码<br>
+                关注成功后，请返回此页面点击"我已关注"按钮
+            </p>
+        </div>
+
+        <div class="steps">
+            <h3>操作步骤：</h3>
+            <ol>
+                <li>打开微信，点击右上角"+" → "扫一扫"</li>
+                <li>扫描上方二维码，进入公众号页面</li>
+                <li>点击"关注公众号"按钮完成关注</li>
+                <li>返回此页面，点击下方"我已关注"按钮</li>
+                <li>系统将自动跳转到目标页面</li>
+            </ol>
+        </div>
+
+        <!-- 自动检查提示 -->
+        <div class="auto-check-info">
+            <span class="icon pulse">🔍</span>
+            <span>系统正在自动检测关注状态...</span>
+        </div>
+
+        <div class="button-group">
+            <button onclick="checkSubscribe()" class="btn btn-check" id="checkButton">
+                <span class="icon">✅</span> 我已关注，继续
+            </button>
+            <button onclick="refreshPage()" class="btn btn-refresh">
+                <span class="icon">↻</span> 刷新页面
+            </button>
+        </div>
+
+        <!-- 检查结果显示区域 -->
+        <div id="checkResult"></div>
+
+        <!-- 倒计时提示 -->
+        <div id="countdownInfo" class="countdown hidden">
+            检测到已关注，<span id="autoJumpCountdown" class="countdown-number">3</span> 秒后自动跳转
+            <button onclick="cancelAutoJump()" style="margin-left:10px;padding:4px 12px;background:transparent;color:#666;border:1px solid #666;border-radius:4px;cursor:pointer;">
+                取消
+            </button>
+        </div>
+
+        <div class="footer-tip">
+            <h4>如果已经关注但仍提示错误：</h4>
+            <p>1. 请确认扫描的是当前页面的二维码</p>
+            <p>2. 尝试取消关注后重新关注</p>
+            <p>3. 等待1-2分钟后刷新页面重试</p>
+            <p>4. 清除微信缓存后重新进入</p>
+            <p>5. 或联系客服获取帮助</p>
+        </div>
     </div>
 </div>
 
 <script>
+    // 全局变量
     let checking = false;
+    let autoCheckInterval = null;
+    let countdownInterval = null;
+    let autoJumpCountdown = 3;
+    let checkAttempts = 0;
+    const MAX_CHECK_ATTEMPTS = 180; // 最多检查3分钟（180次）
 
+    // DOM元素
+    const guideContent = document.getElementById('guideContent');
+    const successContent = document.getElementById('successContent');
+    const checkResult = document.getElementById('checkResult');
+    const checkButton = document.getElementById('checkButton');
+    const countdownInfo = document.getElementById('countdownInfo');
+    const countdownNumber = document.getElementById('countdownNumber');
+    const autoJumpCountdownEl = document.getElementById('autoJumpCountdown');
+    const qrcodeImage = document.getElementById('qrcodeImage');
+    const qrcodeLoading = document.getElementById('qrcodeLoading');
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('页面加载完成，开始初始化...');
+
+        // 显示二维码（如果已加载）
+        if (document.querySelector('.qrcode img').getAttribute('src')) {
+            qrcodeLoading.style.display = 'none';
+            qrcodeImage.style.display = 'block';
+        } else {
+            // 如果二维码加载失败，显示占位符
+            setTimeout(() => {
+                qrcodeLoading.style.display = 'none';
+                qrcodeImage.style.display = 'block';
+                qrcodeImage.innerHTML = '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f0f0f0;color:#666;padding:20px;text-align:center;">' +
+                    '<div style="font-size:48px;margin-bottom:10px;">📱</div>' +
+                    '<div style="font-size:14px;">请刷新页面重新加载二维码</div>' +
+                    '</div>';
+            }, 3000);
+        }
+
+        // 3秒后开始自动检查
+        setTimeout(() => {
+            console.log('开始自动检查关注状态...');
+            startAutoCheck();
+        }, 3000);
+    });
+
+    // 手动检查关注状态
     function checkSubscribe() {
         if (checking) return;
 
         checking = true;
-        const btn = document.querySelector('.btn-check');
-        const originalText = btn.textContent;
-        btn.textContent = '检查中...';
-        btn.disabled = true;
+        const originalText = checkButton.textContent;
+        checkButton.innerHTML = '<span class="icon">⏳</span> 检查中...';
+        checkButton.disabled = true;
 
-        const resultDiv = document.getElementById('checkResult');
-        resultDiv.style.display = 'none';
+        checkResult.style.display = 'none';
+        countdownInfo.classList.add('hidden');
 
-        // 这里需要从Cookie或session获取openid
-        // 实际项目中应该从后端获取
+        // 调用检查接口
         fetch('/wechat/check-subscribe')
             .then(response => response.json())
-            .then(data => {
-                if (data.code === 0 && data.data.subscribed) {
-                    // 已关注，跳转
-                    resultDiv.className = 'success';
-                    resultDiv.textContent = '✓ 已关注，正在跳转...';
-                    resultDiv.style.display = 'block';
-
-                    setTimeout(() => {
-                        window.location.href = '/wechat/follow/callback';
-                    }, 1500);
-                } else {
-                    // 未关注
-                    resultDiv.className = 'error';
-                    resultDiv.textContent = '✗ 检测到您尚未关注，请先关注测试号';
-                    resultDiv.style.display = 'block';
-
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    checking = false;
-                }
-            })
-            .catch(error => {
-                console.error('检查失败:', error);
-                resultDiv.className = 'error';
-                resultDiv.textContent = '检查失败，请重试';
-                resultDiv.style.display = 'block';
-
-                btn.textContent = originalText;
-                btn.disabled = false;
+            .then(handleCheckResponse)
+            .catch(handleCheckError)
+            .finally(() => {
                 checking = false;
+                checkButton.innerHTML = '<span class="icon">✅</span> ' + originalText;
+                checkButton.disabled = false;
             });
     }
 
+    // 处理检查响应
+    function handleCheckResponse(data) {
+        console.log('检查响应:', data);
+
+        if (data.code === 0 && data.data.subscribed) {
+            // 已关注，显示成功消息
+            showSuccess();
+        } else {
+            // 未关注或检查失败
+            showResult('error',
+                data.code === -1 ? '✗ ' + data.message : '✗ 检测到您尚未关注，请先关注测试号',
+                '请确认已完成关注操作，然后点击"我已关注"按钮重试。'
+            );
+        }
+    }
+
+    // 处理检查错误
+    function handleCheckError(error) {
+        console.error('检查失败:', error);
+        showResult('error', '✗ 检查失败，请重试', '网络连接异常，请检查网络后重试。');
+    }
+
+    // 显示结果
+    function showResult(type, title, message) {
+        checkResult.className = type === 'success' ? 'result-success' :
+            type === 'info' ? 'result-info' : 'result-error';
+        checkResult.innerHTML = `
+            <p style="font-weight:bold;margin-bottom:8px;">${title}</p>
+            <p style="font-size:14px;margin:0;">${message}</p>
+        `;
+        checkResult.style.display = 'block';
+    }
+
+    // 显示关注成功
+    function showSuccess() {
+        // 显示成功内容，隐藏引导内容
+        guideContent.style.display = 'none';
+        successContent.classList.remove('hidden');
+
+        // 开始倒计时
+        startCountdown();
+    }
+
+    // 开始倒计时
+    function startCountdown() {
+        let countdown = 5;
+        countdownNumber.textContent = countdown;
+
+        countdownInterval = setInterval(() => {
+            countdown--;
+            countdownNumber.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                continueToApp();
+            }
+        }, 1000);
+    }
+
+    // 继续到应用
+    function continueToApp() {
+        // 获取redirectUri参数
+        const urlParams = new URLSearchParams(window.location.search);
+        let redirectUri = urlParams.get('redirectUri');
+
+        if (!redirectUri) {
+            // 尝试从sessionStorage获取
+            redirectUri = sessionStorage.getItem('pendingRedirectUri');
+        }
+
+        if (!redirectUri) {
+            redirectUri = '/user/center'; // 默认跳转到用户中心
+        }
+
+        console.log('跳转到:', redirectUri);
+
+        // 清除所有定时器
+        if (autoCheckInterval) clearInterval(autoCheckInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        // 跳转到授权页面
+        window.location.href = '/wechat/unified-auth?redirectUri=' +
+            encodeURIComponent(redirectUri) + '&forceAuth=true&t=' + Date.now();
+    }
+
+    // 开始自动检查
+    function startAutoCheck() {
+        if (autoCheckInterval) {
+            clearInterval(autoCheckInterval);
+        }
+
+        checkAttempts = 0;
+
+        autoCheckInterval = setInterval(() => {
+            if (checkAttempts >= MAX_CHECK_ATTEMPTS) {
+                console.log('达到最大检查次数，停止自动检查');
+                clearInterval(autoCheckInterval);
+                return;
+            }
+
+            fetch('/wechat/check-subscribe')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 0 && data.data.subscribed) {
+                        // 已关注，停止自动检查
+                        clearInterval(autoCheckInterval);
+
+                        // 显示自动跳转提示
+                        countdownInfo.classList.remove('hidden');
+                        startAutoJumpCountdown();
+                    }
+                })
+                .catch(error => {
+                    console.error('自动检查失败:', error);
+                });
+
+            checkAttempts++;
+        }, 1000); // 每秒检查一次
+
+        console.log('自动检查已启动，最多检查', MAX_CHECK_ATTEMPTS, '次');
+    }
+
+    // 开始自动跳转倒计时
+    function startAutoJumpCountdown() {
+        autoJumpCountdown = 3;
+        autoJumpCountdownEl.textContent = autoJumpCountdown;
+
+        const jumpInterval = setInterval(() => {
+            autoJumpCountdown--;
+            autoJumpCountdownEl.textContent = autoJumpCountdown;
+
+            if (autoJumpCountdown <= 0) {
+                clearInterval(jumpInterval);
+                checkSubscribe(); // 触发手动检查，显示成功页面
+            }
+        }, 1000);
+    }
+
+    // 取消自动跳转
+    function cancelAutoJump() {
+        countdownInfo.classList.add('hidden');
+        if (autoCheckInterval) {
+            clearInterval(autoCheckInterval);
+        }
+    }
+
+    // 刷新页面
     function refreshPage() {
+        // 清除所有定时器
+        if (autoCheckInterval) clearInterval(autoCheckInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        // 重新加载页面
         window.location.reload();
     }
 
-    // 自动检查（可选）
-    setTimeout(checkSubscribe, 3000);
+    // 二维码加载失败处理
+    document.querySelector('.qrcode img').onerror = function() {
+        console.error('二维码加载失败');
+        qrcodeLoading.style.display = 'none';
+        qrcodeImage.style.display = 'block';
+        qrcodeImage.innerHTML = '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f0f0f0;color:#666;padding:20px;text-align:center;">' +
+            '<div style="font-size:48px;margin-bottom:10px;">❌</div>' +
+            '<div style="font-size:14px;margin-bottom:10px;">二维码加载失败</div>' +
+            '<button onclick="refreshPage()" style="padding:8px 16px;background:#007bff;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">点击刷新</button>' +
+            '</div>';
+    };
+
+    // 二维码加载成功处理
+    document.querySelector('.qrcode img').onload = function() {
+        console.log('二维码加载成功');
+        qrcodeLoading.style.display = 'none';
+        qrcodeImage.style.display = 'block';
+    };
+
+    // 页面可见性变化处理（用户切换标签页时暂停自动检查）
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            // 页面隐藏，暂停自动检查
+            if (autoCheckInterval) {
+                clearInterval(autoCheckInterval);
+                autoCheckInterval = null;
+            }
+        } else {
+            // 页面显示，重新开始自动检查
+            if (!autoCheckInterval && checkAttempts < MAX_CHECK_ATTEMPTS) {
+                startAutoCheck();
+            }
+        }
+    });
 </script>
 </body>
 </html>

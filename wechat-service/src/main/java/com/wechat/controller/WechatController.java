@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.ui.Model;
 
+import java.util.Arrays;
+
 
 @Slf4j
 @Controller  // 改为 @Controller，支持页面跳转
@@ -759,7 +761,7 @@ public class WechatController {
      */
     @GetMapping("/access-token")
     @ResponseBody
-    public ResponseEntity<?> getAccessToken() {
+    public ResponseEntity<?> AccessToken() {
         try {
             String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
                     appId, appSecret);
@@ -1099,29 +1101,192 @@ public class WechatController {
         return "wechat/follow-guide";
     }
 
-    @GetMapping("/follow-guide")
-    public String showFollowGuide(Model model) {
-//        // 使用一个在线的二维码生成服务或测试图片
-//        String testQrCode = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://mp.weixin.qq.com/mp/profile_ext";
+    @GetMapping("/follow-guide-test")
+    public String showFollowGuideTest(Model model) {
+
+        // 对于测试号，直接使用测试号页面的二维码
+        // 1. 首先获取你的测试号二维码
+        // 登录：https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login
+
+//        // 2. 将测试号二维码图片保存到本地或使用base64
+//        String testQrCodeBase64 = getTestAccountQRCodeBase64();
 //
-//        // 或者使用本地的静态资源
-//        // String localQrCode = "/static/images/wechat-qrcode.png";
-//
-//        model.addAttribute("qrCodeUrl", testQrCode);
-        // 生成微信公众号关注页面的二维码
-        String qrContent = "https://open.weixin.qq.com/qr/code?username=你的公众号原始ID";
-        qrContent = "https://open.weixin.qq.com/qr/code?username=gh_502154cc470e";
-        //qrContent = "https://www.sohu.com";
+//        if (testQrCodeBase64 == null) {
+//            // 备选方案：显示测试号页面截图或引导文字
+//            model.addAttribute("qrCodeUrl", "/static/images/test-account-qr.png");
+//            model.addAttribute("showHelpText", true);
+//        } else {
+//            model.addAttribute("qrCodeUrl", testQrCodeBase64);
+//        }
 
+        model.addAttribute("qrCodeUrl", "/static/images/test-account-qr.png");
+        model.addAttribute("showHelpText", true);
 
-        // 方法1：生成Base64二维码
-        String qrCodeBase64 = qrCodeService.generateQRCodeBase64(qrContent, 200, 200);
-
-        // 方法2：直接使用微信接口（如果没有微信公众号权限，可以用这个）
-        // String qrCodeUrl = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=你的ticket";
-
-        model.addAttribute("qrCodeUrl", qrCodeBase64);
+        // 添加操作指引
+        model.addAttribute("guideSteps", Arrays.asList(
+                "打开微信，点击右上角'+'",
+                "选择'扫一扫'",
+                "扫描上方二维码",
+                "在测试号页面点击'关注'"
+        ));
 
         return "wechat/follow-guide";
+    }
+
+    // 获取测试号二维码（你可能需要手动获取一次）,TO DO
+    private String getTestAccountQRCodeBase64() {
+        // 方法1：将测试号二维码图片放在resources/static/images/目录下
+        // 方法2：使用在线工具将二维码转换为base64
+
+        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; // 你的base64
+    }
+
+    @GetMapping("/follow-guide")
+    public String showFollowGuide(
+            @RequestParam(value = "redirectUri", required = false) String redirectUri,
+            @RequestParam(value = "sceneId", required = false) String sceneId,
+            Model model,
+            HttpSession session) {
+
+        try {
+            log.info("显示关注引导页面，redirectUri: {}, sceneId: {}", redirectUri, sceneId);
+
+            // 1. 生成场景值（关联用户或业务）
+            String finalSceneId;
+            if (sceneId != null && !sceneId.isEmpty()) {
+                // 使用传入的sceneId
+                finalSceneId = sceneId;
+            } else {
+                // 生成新的sceneId（可以包含时间戳、随机数、用户信息等）
+                finalSceneId = "scene_" + System.currentTimeMillis() + "_" +
+                        UUID.randomUUID().toString().substring(0, 8);
+            }
+
+            // 保存sceneId到session，用于后续识别
+            session.setAttribute("qrSceneId", finalSceneId);
+
+            // 2. 保存redirectUri到session
+            if (redirectUri != null && !redirectUri.isEmpty()) {
+                session.setAttribute("pendingRedirectUri", redirectUri);
+                model.addAttribute("redirectUri", redirectUri);
+            }
+
+            // 3. 生成带参数的二维码
+            String qrCodeUrl = generateSceneQRCode(finalSceneId);
+
+            if (qrCodeUrl == null) {
+                // 如果生成失败，使用备选方案
+                qrCodeUrl = generateBackupQRCode(finalSceneId);
+            }
+
+            // 4. 传递给前端
+            model.addAttribute("qrCodeUrl", qrCodeUrl);
+            model.addAttribute("sceneId", finalSceneId);
+
+            log.info("生成的二维码sceneId: {}, qrCodeUrl: {}", finalSceneId, qrCodeUrl);
+
+            return "wechat/follow-guide";
+
+        } catch (Exception e) {
+            log.error("显示关注引导页面失败", e);
+            model.addAttribute("error", "页面加载失败: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    /**
+     * 生成带场景值的永久二维码
+     */
+    private String generateSceneQRCode(String sceneStr) {
+        try {
+            // 获取access_token
+            String accessToken = getAccessToken();
+            if (accessToken == null) {
+                log.warn("无法获取access_token");
+                return null;
+            }
+
+            // 调用微信API生成永久二维码
+            String url = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + accessToken;
+
+            JSONObject params = new JSONObject();
+            params.put("action_name", "QR_LIMIT_STR_SCENE"); // 永久二维码
+
+            JSONObject scene = new JSONObject();
+            scene.put("scene_str", sceneStr); // 场景值
+
+            JSONObject actionInfo = new JSONObject();
+            actionInfo.put("scene", scene);
+
+            params.put("action_info", actionInfo);
+
+            log.info("生成二维码参数: {}", params.toJSONString());
+
+            String response = httpUtil.doPost(url, params.toJSONString());
+            log.info("微信API响应: {}", response);
+
+            JSONObject result = JSON.parseObject(response);
+
+            if (result.containsKey("ticket")) {
+                String ticket = result.getString("ticket");
+                // 通过ticket获取二维码图片URL
+                String qrUrl = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" +
+                        URLEncoder.encode(ticket, "UTF-8");
+                log.info("生成的二维码URL: {}", qrUrl);
+                return qrUrl;
+            } else {
+                log.error("生成二维码失败: {}", result);
+                return null;
+            }
+
+        } catch (Exception e) {
+            log.error("生成带参数二维码异常", e);
+            return null;
+        }
+    }
+
+    /**
+     * 备选方案：使用在线二维码生成服务
+     */
+    private String generateBackupQRCode(String sceneStr) {
+        try {
+            // 构建关注引导内容，包含场景值
+            String qrContent = "场景ID: " + sceneStr + "\n";
+            qrContent += "请关注公众号后返回页面完成操作";
+
+            // 使用ZXing生成二维码
+            return qrCodeService.generateQRCodeBase64(qrContent, 300, 300);
+
+        } catch (Exception e) {
+            log.error("生成备选二维码失败", e);
+            return "/static/images/default-qrcode.png"; // 默认图片
+        }
+    }
+
+    /**
+     * 获取access_token
+     */
+    private String getAccessToken() {
+        try {
+            // 这里应该使用缓存，避免频繁调用
+            String url = String.format(
+                    "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+                    appId, appSecret
+            );
+
+            String response = httpUtil.doGet(url);
+            JSONObject result = JSON.parseObject(response);
+
+            if (result.containsKey("access_token")) {
+                return result.getString("access_token");
+            } else {
+                log.error("获取access_token失败: {}", result);
+                return null;
+            }
+
+        } catch (Exception e) {
+            log.error("获取access_token异常", e);
+            return null;
+        }
     }
 }

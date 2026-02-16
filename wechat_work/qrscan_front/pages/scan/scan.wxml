@@ -1,0 +1,53 @@
+<!-- pages/scan/scan.wxml -->
+<view class="container">
+  
+  <!-- 加载状态 -->
+  <view class="loading-section" wx:if="{{loading}}">
+    <image class="loading-icon" src="/images/loading.gif" mode="aspectFit"></image>
+    <text class="loading-text">{{loadingText}}</text>
+  </view>
+  
+  <!-- 登录成功状态 -->
+  <view class="success-section" wx:if="{{loginSuccess}}">
+    <view class="success-icon">✓</view>
+    <text class="success-text">登录成功</text>
+    <text class="success-desc">{{successMessage}}</text>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+  
+  <!-- 登录失败状态 -->
+  <view class="error-section" wx:if="{{loginError}}">
+    <view class="error-icon">!</view>
+    <text class="error-text">登录失败</text>
+    <text class="error-desc">{{errorMessage}}</text>
+    <view class="action-buttons">
+      <button class="retry-btn" bindtap="confirmLogin">重试</button>
+      <button class="cancel-btn" bindtap="goBack">取消</button>
+    </view>
+  </view>
+  
+  <!-- 二维码过期状态 -->
+  <view class="expired-section" wx:if="{{qrExpired}}">
+    <view class="expired-icon">⌛</view>
+    <text class="expired-text">二维码已过期</text>
+    <text class="expired-desc">请重新扫描新的二维码</text>
+    <button class="close-btn" bindtap="goBack">关闭</button>
+  </view>
+  
+  <!-- 登录信息卡片（可选：显示已获取的信息） -->
+  <view class="info-card" wx:if="{{showInfoCard && loginSuccess}}">
+    <view class="info-item">
+      <text class="info-label">OpenID</text>
+      <text class="info-value">{{openid}}</text>
+    </view>
+    <view class="info-item" wx:if="{{phoneNumber}}">
+      <text class="info-label">手机号</text>
+      <text class="info-value">{{phoneNumber}}</text>
+    </view>
+    <view class="info-item">
+      <text class="info-label">登录时间</text>
+      <text class="info-value">{{loginTime}}</text>
+    </view>
+  </view>
+  
+</view>

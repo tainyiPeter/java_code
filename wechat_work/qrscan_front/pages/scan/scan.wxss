@@ -1,0 +1,264 @@
+/* pages/scan/scan.wxss */
+page {
+  background-color: #f5f5f5;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+/* 通用卡片样式 */
+.loading-section,
+.success-section,
+.error-section,
+.expired-section {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  width: 100%;
+  max-width: 600rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 加载状态 */
+.loading-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.loading-text {
+  font-size: 32rpx;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.loading-progress {
+  width: 80%;
+  height: 8rpx;
+  background-color: #e0e0e0;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.loading-progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #07c160, #10aeff);
+  animation: progress 3s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
+/* 成功状态 */
+.success-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #07c160;
+  color: #ffffff;
+  font-size: 80rpx;
+  text-align: center;
+  line-height: 120rpx;
+  border-radius: 50%;
+  margin-bottom: 30rpx;
+  animation: scaleIn 0.3s ease;
+}
+
+.success-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.success-desc {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+/* 错误状态 */
+.error-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #ff4d4f;
+  color: #ffffff;
+  font-size: 80rpx;
+  text-align: center;
+  line-height: 120rpx;
+  border-radius: 50%;
+  margin-bottom: 30rpx;
+  animation: shake 0.5s ease;
+}
+
+.error-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.error-desc {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+/* 过期状态 */
+.expired-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #faad14;
+  color: #ffffff;
+  font-size: 80rpx;
+  text-align: center;
+  line-height: 120rpx;
+  border-radius: 50%;
+  margin-bottom: 30rpx;
+}
+
+.expired-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.expired-desc {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+/* 按钮样式 */
+.back-btn,
+.retry-btn,
+.cancel-btn,
+.close-btn {
+  width: 80%;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  margin: 20rpx 0;
+}
+
+.back-btn,
+.retry-btn {
+  background-color: #07c160;
+  color: #ffffff;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+}
+
+.close-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.action-buttons button {
+  width: 45%;
+  margin: 0;
+}
+
+/* 信息卡片 */
+.info-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  width: 100%;
+  max-width: 600rpx;
+  margin-top: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  max-width: 300rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 动画 */
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10rpx); }
+  20%, 40%, 60%, 80% { transform: translateX(10rpx); }
+}
+
+/* 加载进度条动画 */
+@keyframes slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* 适配不同屏幕 */
+@media screen and (max-width: 320px) {
+  .container {
+    padding: 20rpx;
+  }
+  
+  .loading-section,
+  .success-section,
+  .error-section,
+  .expired-section {
+    padding: 40rpx 30rpx;
+  }
+}
