@@ -1,0 +1,37 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+# 微信小程序配置
+wechat:
+  mini:
+    app-id: wxb16f3ef776ae7231           # 从微信公众平台获取
+    app-secret: cc574d7b1a8ce9b0c8cd87c6bf741f68   # 从微信公众平台获取
+    jscode2session-url: https://api.weixin.qq.com/sns/jscode2session
+
+# 二维码配置
+qrcode:
+  width: 300
+  height: 300
+  expire-minutes: 5  # 二维码过期时间（分钟）
+
+logging:
+  level:
+    com.example: DEBUG
