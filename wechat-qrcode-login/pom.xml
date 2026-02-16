@@ -59,10 +59,10 @@
             <version>3.5.2</version>
         </dependency>
 
-        <!-- Lombok (可选，简化代码) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.42</version>  <!-- 2025年最新版本，支持JDK 24 -->
             <optional>true</optional>
         </dependency>
 
