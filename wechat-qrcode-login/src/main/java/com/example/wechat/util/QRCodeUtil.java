@@ -108,10 +108,11 @@ public class QRCodeUtil {
     private String buildQrContent(String deviceId) {
         StringBuilder url = new StringBuilder(qrcodeRule);
 
-        // 移除末尾可能的斜杠
-        if (url.charAt(url.length() - 1) == '/') {
-            url.deleteCharAt(url.length() - 1);
-        }
+        // 不要 移除末尾可能的斜杠
+//        // 移除末尾可能的斜杠
+//        if (url.charAt(url.length() - 1) == '/') {
+//            url.deleteCharAt(url.length() - 1);
+//        }
 
         // 添加查询参数（可选）
         url.append("?deviceId=").append(deviceId);
