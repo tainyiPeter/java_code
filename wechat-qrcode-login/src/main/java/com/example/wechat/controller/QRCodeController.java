@@ -87,6 +87,7 @@ public class QRCodeController {
     @GetMapping("/generate-token")
     public ResponseEntity<ApiResponse<String>> generateToken() {
         try {
+            logger.info("call generate-token");
             String loginToken = qrCodeService.generateLoginToken();
             return ResponseEntity.ok(ApiResponse.success("生成成功", loginToken));
         } catch (Exception e) {

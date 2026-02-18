@@ -10,5 +10,25 @@
     "autoAudits": false,
     "showShadowRootInWxmlPanel": true,
     "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/scan/scan",
+          "pathName": "pages/scan/scan",
+          "query": "token=b5c3f38ed81d495098b8d3ccf28876fc",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/scan/scan",
+          "pathName": "pages/scan/scan",
+          "query": "token=b5c3f38ed81d495098b8d3ccf28876fc",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
   }
 }

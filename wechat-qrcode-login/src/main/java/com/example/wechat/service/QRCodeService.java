@@ -60,6 +60,7 @@ public class QRCodeService {
      */
     public byte[] generateQRCodeImage(String loginToken) {
         String qrContent = "pages/scan/scan?token=" + loginToken;
+        //String qrContent = "https://91qj1470uc04.vicp.fun/api/qrcode/pages/scan/scan?token=" + loginToken;
         return qrCodeUtil.createQRCode(qrContent);
     }
 

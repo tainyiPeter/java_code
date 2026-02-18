@@ -217,6 +217,7 @@
         // 实际项目中，你可能需要先调用generate-token接口获取token
         // 这里简化处理：从图片URL中提取
         const src = img.src;
+        console.log("call extractTokenAndPoll");
 
         // 由于图片是直接返回的，无法从src获取token
         // 改用调用generate-token接口的方式

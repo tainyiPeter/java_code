@@ -55,7 +55,7 @@ Page({
     // 这里可以调用后端接口检查二维码状态
     // 示例：如果二维码过期，直接显示过期页面
     wx.request({
-      url: 'https://你的后端域名/api/qrcode/check',
+      url: 'https://91qj1470uc04.vicp.fun/api/qrcode/check',
       data: { token: this.data.loginToken },
       success: (res) => {
         if (res.data.expired) {
@@ -97,7 +97,7 @@ Page({
    */
   sendToBackend(code) {
     wx.request({
-      url: 'https://你的后端域名/api/qrcode/scan-callback',
+      url: 'https://91qj1470uc04.vicp.fun/api/qrcode/scan-callback',
       method: 'POST',
       data: {
         loginToken: this.data.loginToken,
