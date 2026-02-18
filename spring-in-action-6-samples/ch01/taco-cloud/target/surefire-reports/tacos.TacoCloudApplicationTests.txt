@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: tacos.TacoCloudApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.007 s <<< FAILURE! - in tacos.TacoCloudApplicationTests
+tacos.TacoCloudApplicationTests  Time elapsed: 0.007 s  <<< ERROR!
+java.lang.NoClassDefFoundError: org/springframework/format/datetime/standard/InstantFormatter
+Caused by: java.lang.ClassNotFoundException: org.springframework.format.datetime.standard.InstantFormatter
+

@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: tacos.HomeControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.24 s <<< FAILURE! - in tacos.HomeControllerTest
+testHomePage  Time elapsed: 0.004 s  <<< ERROR!
+java.lang.NoClassDefFoundError: org/springframework/format/datetime/standard/InstantFormatter
+Caused by: java.lang.ClassNotFoundException: org.springframework.format.datetime.standard.InstantFormatter
+
