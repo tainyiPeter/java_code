@@ -14,6 +14,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 
+import java.io.OutputStream;
+
 @Service
 public class QRCodeService {
 
@@ -22,6 +24,7 @@ public class QRCodeService {
 
     @Value("${qrcode.expire-minutes:5}")
     private int expireMinutes;
+
 
     // 内存存储：token -> 状态信息
     private final Map<String, Map<String, Object>> tokenStore = new ConcurrentHashMap<>();
@@ -97,5 +100,12 @@ public class QRCodeService {
             Long createTime = (Long) info.get("createTime");
             return createTime != null && (now - createTime) > expireMillis;
         });
+    }
+
+    /*
+    * --------------------------------------------新的位置-----------------------------------
+    */
+    public void generateMiniProgramQr(String deviceId, OutputStream outputStream) {
+       qrCodeUtil.generateMiniProgramQr(deviceId, outputStream);
     }
 }

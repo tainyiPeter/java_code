@@ -3,6 +3,13 @@ server:
   servlet:
     context-path: /
 
+# 小程序配置
+miniprogram:
+  # 后台配置的二维码规则地址
+  qrcode-rule: https://app-wxcde318e3d9205ede.yijie3d.com/xcx/scandevice/
+  # 小程序页面路径
+  page-path: pages/devicescan/devicescan
+
 spring:
   redis:
     host: localhost
