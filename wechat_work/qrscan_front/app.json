@@ -1,6 +1,7 @@
 {
   "pages": [
-    "pages/scan/scan"
+    "pages/scan/scan",
+    "pages/userinfo/userinfo"
   ],
   "window": {
     "navigationBarTitleText": "扫码登录Demo"

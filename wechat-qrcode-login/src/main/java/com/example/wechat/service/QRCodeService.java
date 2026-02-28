@@ -1,6 +1,9 @@
 package com.example.wechat.service;
 
+import com.example.wechat.controller.QRCodeController;
 import com.example.wechat.util.QRCodeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class QRCodeService {
     @Value("${qrcode.expire-minutes:5}")
     private int expireMinutes;
 
+    private static final Logger logger = LoggerFactory.getLogger(QRCodeService.class);
 
     // 内存存储：token -> 状态信息
     private final Map<String, Map<String, Object>> tokenStore = new ConcurrentHashMap<>();
@@ -64,6 +68,9 @@ public class QRCodeService {
     public byte[] generateQRCodeImage(String loginToken) {
         String qrContent = "pages/scan/scan?token=" + loginToken;
         //String qrContent = "https://91qj1470uc04.vicp.fun/api/qrcode/pages/scan/scan?token=" + loginToken;
+        //qrContent = "https://www.sohu.com";
+        qrContent = "https://app-wxcde318e3d9205ede.yijie3d.com/xcx/scandevice/?mobile=${mobile}&ftoken=scan2f@@1035057@@1768366663UJlk5mJa";
+        logger.info("call generateQRCodeImage: qrContent={}", qrContent);
         return qrCodeUtil.createQRCode(qrContent);
     }
 

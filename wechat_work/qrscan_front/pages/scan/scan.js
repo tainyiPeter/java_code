@@ -126,7 +126,7 @@ Page({
           }, 3000);
 
         } else {
-          this.handleError(res.data.message || '登录失败');
+          this.handleError(res.data.message || '登录失败啦啦啦');
         }
       },
       fail: (err) => {

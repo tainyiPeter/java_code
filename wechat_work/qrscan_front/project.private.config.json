@@ -15,11 +15,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/userinfo/userinfo",
+          "pathName": "pages/userinfo/userinfo",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "pages/scan/scan",
           "pathName": "pages/scan/scan",
           "query": "token=b5c3f38ed81d495098b8d3ccf28876fc",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/scan/scan",

@@ -18,7 +18,7 @@
   <!-- 登录失败状态 -->
   <view class="error-section" wx:if="{{loginError}}">
     <view class="error-icon">!</view>
-    <text class="error-text">登录失败</text>
+    <text class="error-text">登录失败--0228 体验版</text>
     <text class="error-desc">{{errorMessage}}</text>
     <view class="action-buttons">
       <button class="retry-btn" bindtap="confirmLogin">重试</button>

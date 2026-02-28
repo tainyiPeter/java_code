@@ -1,0 +1,27 @@
+<!--pages/userinfo/userinfo.wxml-->
+<view class="container">
+  <!-- 获取手机号的按钮 -->
+  <button 
+    open-type="getPhoneNumber" 
+    bindgetphonenumber="onGetPhoneNumber"
+    type="primary">
+    获取手机号
+  </button>
+
+  <!-- 获取用户昵称和头像的按钮（推荐方式） -->
+  <button 
+    type="default" 
+    bindtap="onGetUserProfile">
+    获取昵称和头像
+  </button>
+
+  <!-- 显示区域 -->
+  <view class="info-area">
+    <block wx:if="{{userInfo.nickName}}">
+      <image src="{{userInfo.avatarUrl}}" mode="widthFix" style="width: 100px; height: 100px; border-radius: 50%;"></image>
+      <text>昵称：{{userInfo.nickName}}</text>
+    </block>
+    <text wx:if="{{phoneNumber}}">手机号：{{phoneNumber}}</text>
+  </view>
+</view>
+
