@@ -1,1 +1,40 @@
 /* pages/userinfo/userinfo.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40rpx 0;
+  background-color: #ffffff;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 60rpx;
+  color: #333;
+}
+
+button {
+  border-radius: 48rpx;
+  font-size: 28rpx;
+}
+
+button[type="primary"] {
+  background-color: #07c160;
+}
+
+.button-hover {
+  opacity: 0.7;
+}
+
+.info-card {
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #eee;
+}
+
+/* 如果信息为空时的占位样式 */
+.info-card text {
+  line-height: 1.8;
+}
