@@ -39,7 +39,7 @@
             <version>1.70</version>
         </dependency>
 
-        <!-- Redis -->
+        <!-- Redis 暂时去掉 Redis依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>

@@ -226,6 +226,9 @@ public class WechatUserServiceImpl implements WechatUserService {
     private String saveUserSession(String openid, String sessionKey) {
         String token;
 
+        // 临时强制使用内存存储
+        redisTemplate = null;
+
         if (redisTemplate != null) {
             // 使用Redis存储
             token = UUID.randomUUID().toString().replace("-", "");

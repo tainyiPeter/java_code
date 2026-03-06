@@ -19,8 +19,13 @@ public class WXBizDataCrypt {
     private static final Logger logger = LoggerFactory.getLogger(WXBizDataCrypt.class);
 
     static {
-        // 添加BouncyCastle支持
-        Security.addProvider(new BouncyCastleProvider());
+        // 添加BouncyCastle支持 - 这里需要捕获异常
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+            logger.info("BouncyCastleProvider 初始化成功");
+        } catch (Exception e) {
+            logger.error("BouncyCastleProvider 初始化失败", e);
+        }
     }
 
     /**
@@ -33,6 +38,8 @@ public class WXBizDataCrypt {
      */
     public JSONObject decrypt(String sessionKey, String encryptedData, String iv, String appId) {
         try {
+            logger.debug("开始解密数据，appId: {}", appId);
+
             // Base64解码
             byte[] sessionKeyBytes = Base64.getDecoder().decode(sessionKey);
             byte[] encryptedDataBytes = Base64.getDecoder().decode(encryptedData);
