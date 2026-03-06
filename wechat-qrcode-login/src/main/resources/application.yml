@@ -29,9 +29,10 @@ spring:
 # 微信小程序配置
 wechat:
   mini:
-    app-id: wxb16f3ef776ae7231           # 从微信公众平台获取
-    app-secret: cc574d7b1a8ce9b0c8cd87c6bf741f68   # 从微信公众平台获取
+    app-id: wx24352e96354317bc           # 从微信公众平台获取
+    app-secret: 841dd3cbb1a7216b2b15b58e62d89da2   # 从微信公众平台获取
     jscode2session-url: https://api.weixin.qq.com/sns/jscode2session
+    session-expire-days: 7  # session过期时间（天）
 
 # 二维码配置
 qrcode:

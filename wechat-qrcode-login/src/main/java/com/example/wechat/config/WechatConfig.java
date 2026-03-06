@@ -10,6 +10,7 @@ public class WechatConfig {
     private String appId;
     private String appSecret;
     private String jscode2sessionUrl;
+    private Integer sessionExpireDays = 7;  // 默认7天
 
     // Getters and Setters
     public String getAppId() { return appId; }
