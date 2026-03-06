@@ -24,13 +24,15 @@ Page({
   },
 
   onGetPhoneNumber(e) {
+    console.log("call Get Phone number:", e.detail.errMsg);
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
       wx.showToast({ title: '需要授权手机号', icon: 'none' });
       return;
     }
 
     const { encryptedData, iv } = e.detail;
-    
+    console.log("data code:", this.data.code);
+    console.log("encryptedData:", encryptedData);
     // 调用 Python 后端接口
     wx.request({
       //url: 'http://你的服务器IP:5000/api/decode-phone',  // 替换为你的服务器地址
