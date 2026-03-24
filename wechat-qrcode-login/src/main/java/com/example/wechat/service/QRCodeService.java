@@ -64,12 +64,14 @@ public class QRCodeService {
 
     /**
      * 生成二维码图片字节数组
+     * 二维码链接
      */
     public byte[] generateQRCodeImage(String loginToken) {
         String qrContent = "pages/scan/scan?token=" + loginToken;
         //String qrContent = "https://91qj1470uc04.vicp.fun/api/qrcode/pages/scan/scan?token=" + loginToken;
         //qrContent = "https://www.sohu.com";
-        qrContent = "https://app-wxcde318e3d9205ede.yijie3d.com/xcx/scandevice/?mobile=${mobile}&ftoken=scan2f@@1035057@@1768366663UJlk5mJa";
+        //qrContent = "https://app-wxcde318e3d9205ede.yijie3d.com/xcx/scandevice/?mobile=${mobile}&ftoken=scan2f@@1035057@@1768366663UJlk5mJa";
+        qrContent = "https://91qj1470uc04.vicp.fun/?code=1234";
         logger.info("call generateQRCodeImage: qrContent={}", qrContent);
         return qrCodeUtil.createQRCode(qrContent);
     }
