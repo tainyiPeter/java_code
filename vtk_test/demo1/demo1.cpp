@@ -9,6 +9,7 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
+// only test
 int main() {
 	// 创建圆锥源
 	vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
