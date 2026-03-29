@@ -7,14 +7,16 @@
 import ollama
 from fastapi import WebSocket
 
+# 显式创建 Ollama 客户端，指定服务地址
+ollama_client = ollama.Client(host='http://localhost:11434')
+
 
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     user_input = await websocket.receive_text()
 
-    stream = ollama.chat(
-        # model='llama3.1',
-        model='llama3.2:latest',  # 推荐，轻量且效果不错
+    stream = ollama_client.chat(
+        model='llama3.2:latest',
         messages=[{'role': 'user', 'content': user_input}],
         stream=True
     )
