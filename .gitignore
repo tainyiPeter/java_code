@@ -49,3 +49,5 @@ wechat-qrcode-login/target/
 wechat-qrcode-login/.idea/
 webspider_work/.idea/
 webspider_work/maoyan_top100.csv
+fastapi_chat_app/.idea
+fastapi_chat_app/__pycache__
